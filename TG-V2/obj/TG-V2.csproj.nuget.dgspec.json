@@ -1,0 +1,67 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/antonio/Desktop/TG-V2/TG-V2.csproj": {}
+  },
+  "projects": {
+    "/home/antonio/Desktop/TG-V2/TG-V2.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/antonio/Desktop/TG-V2/TG-V2.csproj",
+        "projectName": "TG-V2",
+        "projectPath": "/home/antonio/Desktop/TG-V2/TG-V2.csproj",
+        "packagesPath": "/home/antonio/.nuget/packages/",
+        "outputPath": "/home/antonio/Desktop/TG-V2/obj/",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "/usr/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/home/antonio/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.0": {
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/3.0.103/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

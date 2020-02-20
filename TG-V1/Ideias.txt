@@ -1,0 +1,28 @@
+Algoritmo genético :
+
+Condições para jogar
+
+Rede neural feedforward aonde os genes são os pesos
+Decidir quantos/ comparar hidden layers
+Funciona por causa do teorema universal da aproximação (citar na monografia)
+
+START
+Generate the initial population
+Compute fitness
+REPEAT
+    Selection
+    Crossover
+    Mutation
+    Compute fitness
+UNTIL population has converged
+STOP
+
+Backprogragation / Gradient descent (ascent)
+
+Condições para jogar
+
+Rede neural feedforward
+Decidir quantos/ comparar hidden layers
+Funciona por causa do teorema universal da aproximação (citar na monografia)
+
+Pesos são otimizados seguindo a direção do gradiente em qualquer ponto 
