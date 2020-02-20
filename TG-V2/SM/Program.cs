@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TG_V2
+namespace SM
 {
     class Program
     {
