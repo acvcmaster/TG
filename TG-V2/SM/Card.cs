@@ -29,8 +29,14 @@ namespace SM
 
     public class Card
     {
-        public FaceValue FaceValue { get; set; } = FaceValue.Ace;
-        public Suit Suit { get; set; } = Suit.Diamonds;
+        public FaceValue FaceValue { get; set; }
+        public Suit Suit { get; set; }
+
+        public Card(FaceValue faceValue, Suit suit)
+        {
+            this.FaceValue = faceValue;
+            this.Suit = suit;
+        }
 
         public string Name
         {
@@ -39,15 +45,7 @@ namespace SM
 
         public int BlackjackValue 
         {
-            get
-            {
-                return 0;
-            }
-        }
-
-        public static implicit operator Card(dynamic[] values)
-        {
-            return new Card();
+            get { return (int)this.FaceValue < 10 ? (int)this.FaceValue: 10; }
         }
     }
 }

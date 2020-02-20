@@ -7,8 +7,8 @@ namespace Runner
     {
         static void Main(string[] args)
         {
-            Card a = new dynamic[] {FaceValue.Ace, Suit.Spades};
-            Console.WriteLine(a.Name);
+            // Card a = new Card(FaceValue.Jack, Suit.Spades);
+            // Console.WriteLine(a.Name + ", " + a.BlackjackValue);
         }
     }
 }
