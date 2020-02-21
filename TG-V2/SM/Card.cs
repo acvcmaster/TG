@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SM
+﻿namespace SM
 {
     public enum Suit: int
     {
@@ -36,6 +34,12 @@ namespace SM
         {
             this.FaceValue = faceValue;
             this.Suit = suit;
+        }
+
+        public Card(int faceValue, int suit)
+        {
+            this.FaceValue = (FaceValue)faceValue;
+            this.Suit = (Suit)suit;
         }
 
         public string Name

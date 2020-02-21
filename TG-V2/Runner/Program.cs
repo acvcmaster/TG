@@ -1,5 +1,6 @@
 ﻿using System;
 using SM;
+using System.Diagnostics;
 
 namespace Runner
 {
@@ -7,8 +8,15 @@ namespace Runner
     {
         static void Main(string[] args)
         {
-            // Card a = new Card(FaceValue.Jack, Suit.Spades);
-            // Console.WriteLine(a.Name + ", " + a.BlackjackValue);
+            // Stopwatch timer = new Stopwatch();
+            // timer.Start();
+            // Deck deck = new Deck(4);
+            // for (int i = 0; i < 100000; i++)
+            // {
+            //     deck.Shuffle();
+            // }
+            // timer.Stop();
+            // Console.WriteLine("ms ellapsed: " + timer.ElapsedMilliseconds);
         }
     }
 }
