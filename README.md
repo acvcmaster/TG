@@ -16,3 +16,25 @@ https://cs230.stanford.edu/files_winter_2018/projects/6940282.pdf //Qlearning
 http://jogosdecartas.hut.com.br/vinte-e-um/?fbclid=IwAR16Q93GgQajpVb8mCW3J8l0Yrl7kdNdZwkJbzPb9xfzwsT3tagpKrZg0fM
 //Regras
 ```
+
+
+Algoritmo genético :
+
+Condições para jogar
+
+Rede neural feedforward aonde os genes são os pesos
+Decidir quantos/ comparar hidden layers
+Funciona por causa do teorema universal da aproximação (citar na monografia)
+
+START
+Generate the initial population
+Compute fitness
+REPEAT
+    Selection
+    Crossover
+    Mutation
+    Compute fitness
+UNTIL population has converged
+STOP
+
+Backprogragation / Gradient descent (ascent)
