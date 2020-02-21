@@ -38,5 +38,3 @@ REPEAT
 UNTIL population has converged
 STOP
 ```
-
-Backprogragation / Gradient descent (ascent)
