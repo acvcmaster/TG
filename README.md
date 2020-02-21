@@ -26,6 +26,7 @@ Rede neural feedforward aonde os genes são os pesos
 Decidir quantos/ comparar hidden layers
 Funciona por causa do teorema universal da aproximação (citar na monografia)
 
+```
 START
 Generate the initial population
 Compute fitness
@@ -36,5 +37,6 @@ REPEAT
     Compute fitness
 UNTIL population has converged
 STOP
+```
 
 Backprogragation / Gradient descent (ascent)
