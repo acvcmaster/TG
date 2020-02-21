@@ -22,9 +22,9 @@ Algoritmo genético :
 
 Condições para jogar
 
-Rede neural feedforward aonde os genes são os pesos
-Decidir quantos/ comparar hidden layers
-Funciona por causa do teorema universal da aproximação (citar na monografia)
+Rede neural feedforward aonde os genes são os pesos<br/>
+Decidir quantos/ comparar hidden layers<br/>
+Funciona por causa do teorema universal da aproximação (citar na monografia)<br/>
 
 ```
 START
