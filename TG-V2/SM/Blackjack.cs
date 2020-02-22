@@ -1,22 +1,18 @@
 using System;
-using Util;
 
 namespace SM
 {
-    public enum GameState : int
-    {
-        InitialState = 0,
-        FinalState
-    }
+    public delegate BlackjackMove BlackjackStrategy(Blackjack game);
     public class Blackjack
     {
         private Deck Deck { get; }
         public bool Ended = false;
-        public Blackjack(Deck deck)
+        public Blackjack(Deck deck, BlackjackStrategy strategy)
         {
             Deck = deck;
+            CurrentStrategy = strategy;
         }
-
+        public BlackjackStrategy CurrentStrategy { get; }
         public void Play()
         {
             if (Ended)
@@ -27,7 +23,10 @@ namespace SM
             switch (state)
             {
                 case GameState.InitialState:
-                    Deck.Shuffle();
+                    Transition(ref state, GameState.PlayerTurn);
+                    break;
+                case GameState.PlayerTurn:
+                    var move = CurrentStrategy(this);
                     Transition(ref state, GameState.FinalState);
                     break;
                 default:
@@ -38,5 +37,6 @@ namespace SM
         }
 
         private void Transition(ref GameState state, GameState next) { state = next; }
+        public void Reset() { Ended = false; }
     }
 }

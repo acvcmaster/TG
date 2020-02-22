@@ -12,10 +12,14 @@ namespace Runner
             timer.Start();
 
             Deck deck = new Deck(4);
-            for (int i = 0; i < 100000; i++)
+            for (int j = 0; j < 100000; j++) // games
             {
-                Blackjack game = new Blackjack(deck);
-                game.Play();
+                deck.Shuffle();
+                for (int i = 0; i < 250; i++) // individuals
+                {
+                    Blackjack game = new Blackjack(deck, (game) => BlackjackMove.Stand);
+                    game.Play();
+                }
             }
 
             timer.Stop();
