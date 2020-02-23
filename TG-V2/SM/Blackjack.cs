@@ -14,8 +14,6 @@ namespace SM
         private int deckIndex = 0;
         private int playerHandIndex = 0;
         // private int playerSecondHandIndex = 0;
-        private float profit = 1;
-        private float profit2 = 0;
         private bool split = false;
         private bool secondHandTurn = false;
         private int dealerHandIndex = 0;
@@ -27,6 +25,7 @@ namespace SM
         public BlackjackStrategy CurrentStrategy { get; }
         public float Play()
         {
+            float profit = 1f;
             GameState state = GameState.InitialState;
         process_states:
             switch (state)
@@ -56,6 +55,12 @@ namespace SM
                 case GameState.Hit:
                     break;
                 case GameState.Stand:
+                    GiveCard(DealerHand, ref dealerHandIndex);
+                    int playerSum = GetSum(PlayerHand, playerHandIndex);
+                    int dealerSum = GetSum(DealerHand, dealerHandIndex);
+                    
+                    // if (dealerSum > 21)
+
                     Transition(ref state, GameState.FinalState);
                     break;
                 case GameState.DoubleDown:
@@ -79,10 +84,9 @@ namespace SM
             var move = CurrentStrategy(this);
             if (move == BlackjackMove.Split)
             {
-                // if (playerHandIndex == 2 && PlayerHand[0].BlackjackValue == PlayerHand[1].BlackjackValue)
-                //     return BlackjackMove.Split;
-                // else
-                return BlackjackMove.Stand;
+                if (playerHandIndex == 2 && PlayerHand[0].BlackjackValue == PlayerHand[1].BlackjackValue)
+                    return BlackjackMove.Split;
+                else return BlackjackMove.Stand;
             }
 
             return move;
@@ -107,18 +111,20 @@ namespace SM
         public static int GetSum(Card[] hand, int length)
         {
             int sum = 0;
-            bool ace = false;
+            int aces = 0;
             for (int i = 0; i < length; i++)
             {
                 Card card = hand[i];
-                sum += card.BlackjackValue;
-                if (card.FaceValue == FaceValue.Ace && !ace)
-                {
-                    sum += 10;
-                    ace = true;
-                }
+                if (card.FaceValue != FaceValue.Ace)
+                    sum += card.BlackjackValue;
+                else aces++;
             }
-            return sum;
+
+            if (aces > 0)
+                if (sum + aces <= 11)
+                    aces += 10;
+
+            return sum + aces;
         }
     }
 }
