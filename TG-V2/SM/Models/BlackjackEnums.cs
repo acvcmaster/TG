@@ -4,6 +4,10 @@ namespace SM
     {
         InitialState = 0,
         PlayerTurn,
+        Stand,
+        Hit,
+        DoubleDown,
+        PlayerBlackjack,
         FinalState
     }
     public enum BlackjackMove : int

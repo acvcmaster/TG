@@ -1,6 +1,6 @@
 ﻿namespace SM
 {
-    public enum Suit: int
+    public enum Suit : int
     {
         Diamonds = 1,
         Spades,
@@ -8,7 +8,7 @@
         Clubs
     }
 
-    public enum FaceValue: int
+    public enum FaceValue : int
     {
         Ace = 1,
         Two,
@@ -47,9 +47,13 @@
             get { return $"{this.FaceValue.ToString()} of {this.Suit.ToString()}"; }
         }
 
-        public int BlackjackValue 
+        public int BlackjackValue
         {
-            get { return (int)this.FaceValue < 10 ? (int)this.FaceValue: 10; }
+            get
+            {
+                int facevalue = (int)this.FaceValue;
+                return facevalue < 10 ? facevalue : 10;
+            }
         }
     }
 }
