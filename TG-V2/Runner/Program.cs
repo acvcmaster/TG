@@ -1,4 +1,6 @@
-﻿using System;
+﻿// #define INTERACTIVE
+
+using System;
 using SM;
 using System.Diagnostics;
 
@@ -8,6 +10,15 @@ namespace Runner
     {
         static void Main(string[] args)
         {
+#if INTERACTIVE
+            Deck deck = new Deck(4);
+            for (; ; )
+            {
+                Blackjack game = new Blackjack(deck, InteractiveStrategy);
+                deck.Shuffle();
+                game.Play();
+            }
+#else
             int population = 250;
             int games = 100000;
 
@@ -28,6 +39,26 @@ namespace Runner
 
             timer.Stop();
             Console.WriteLine("ms ellapsed: " + timer.ElapsedMilliseconds);
+#endif
+
+
+        }
+
+        static BlackjackMove InteractiveStrategy(Blackjack game)
+        {
+            Console.Write("Your cards: ");
+            for (int i = 0; i < game.PlayerHandIndex; i++)
+                Console.Write($"{game.PlayerHand[i].Name}{ (i + 1 != game.PlayerHandIndex ? ", " : "") }");
+            Console.WriteLine();
+            Console.WriteLine($"Dealer faceup card: {game.DealerFaceupCard.Name}");
+
+            while (true)
+            {
+                Console.Write("Your move: ");
+                BlackjackMove move;
+                bool success = Enum.TryParse<BlackjackMove>(Console.ReadLine(), true, out move);
+                if (success) { return move; }
+            }
         }
     }
 }

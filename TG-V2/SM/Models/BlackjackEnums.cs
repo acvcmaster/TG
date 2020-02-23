@@ -8,6 +8,7 @@ namespace SM
         Hit,
         DoubleDown,
         PlayerBlackjack,
+        Split,
         FinalState
     }
     public enum BlackjackMove : int

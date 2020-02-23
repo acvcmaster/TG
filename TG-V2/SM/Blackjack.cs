@@ -12,11 +12,8 @@ namespace SM
         public Card[] PlayerSecondHand = new Card[21];
         public Card[] DealerHand = new Card[21];
         private int deckIndex = 0;
-        private int playerHandIndex = 0;
-        // private int playerSecondHandIndex = 0;
-        private bool split = false;
-        private bool secondHandTurn = false;
-        private int dealerHandIndex = 0;
+        public int PlayerHandIndex = 0;
+        public int DealerHandIndex = 0;
         public Blackjack(Deck deck, BlackjackStrategy strategy)
         {
             Deck = deck;
@@ -31,9 +28,9 @@ namespace SM
             switch (state)
             {
                 case GameState.InitialState:
-                    GiveCard(PlayerHand, ref playerHandIndex);
-                    GiveCard(PlayerHand, ref playerHandIndex);
-                    GiveCard(DealerHand, ref dealerHandIndex, true);
+                    GiveCard(PlayerHand, ref PlayerHandIndex);
+                    GiveCard(PlayerHand, ref PlayerHandIndex);
+                    GiveCard(DealerHand, ref DealerHandIndex, true);
                     Transition(ref state, GameState.PlayerTurn);
                     if (CheckBlackjack(PlayerHand))
                         Transition(ref state, GameState.PlayerBlackjack);
@@ -43,40 +40,77 @@ namespace SM
 
                     switch (move)
                     {
+                        case BlackjackMove.Hit:
+                            Transition(ref state, GameState.Hit);
+                            break;
                         case BlackjackMove.Stand:
                             Transition(ref state, GameState.Stand);
                             break;
                         case BlackjackMove.DoubleDown:
                             Transition(ref state, GameState.DoubleDown);
                             break;
+                        case BlackjackMove.Split:
+                            Transition(ref state, GameState.Split);
+                            break;
                     }
-
                     break;
                 case GameState.Hit:
+                    GiveCard(PlayerHand, ref PlayerHandIndex);
+                    if (GetSum(PlayerHand, PlayerHandIndex) > 21)
+                        Transition(ref state, GameState.Stand);
+                    else Transition(ref state, GameState.PlayerTurn);
                     break;
                 case GameState.Stand:
-                    while (GetSum(DealerHand, dealerHandIndex) < 17) // Dealer stands on soft 17
-                        GiveCard(DealerHand, ref dealerHandIndex);
+                    while (GetSum(DealerHand, DealerHandIndex) < 17) // Dealer stands on soft 17
+                        GiveCard(DealerHand, ref DealerHandIndex);
 
-                    int playerSum = GetSum(PlayerHand, playerHandIndex);
-                    int dealerSum = GetSum(DealerHand, dealerHandIndex);
+                    int playerSum = GetSum(PlayerHand, PlayerHandIndex);
+                    int dealerSum = GetSum(DealerHand, DealerHandIndex);
+
+                    if (playerSum > 21 || CheckBlackjack(DealerHand) || (playerSum < dealerSum && dealerSum <= 21)) { profit = -profit; }
+                    else if (playerSum == dealerSum) { profit = 0; }
+#if INTERACTIVE
+                    Console.Write("Player: ");
+                    for (int i = 0; i < PlayerHandIndex; i++)
+                        Console.Write(PlayerHand[i].Name + ", ");
+                    Console.WriteLine();
+
+                    Console.Write("Dealer: ");
+                    for (int i = 0; i < DealerHandIndex; i++)
+                        Console.Write(DealerHand[i].Name + ", ");
+                    Console.WriteLine();
+#endif
 
                     Transition(ref state, GameState.FinalState);
                     break;
                 case GameState.DoubleDown:
-                    GiveCard(PlayerHand, ref playerHandIndex);
+                    GiveCard(PlayerHand, ref PlayerHandIndex);
                     profit = 2;
                     Transition(ref state, GameState.Stand);
                     break;
                 case GameState.PlayerBlackjack:
-                    GiveCard(DealerHand, ref dealerHandIndex);
+                    GiveCard(DealerHand, ref DealerHandIndex);
                     profit = CheckBlackjack(DealerHand) ? 0 : 1.5f;
                     Transition(ref state, GameState.FinalState);
                     break;
+                case GameState.Split:
+                    profit = PlaySplit();
+                    Transition(ref state, GameState.FinalState);
+                    break;
                 default:
+#if INTERACTIVE
+                    Console.WriteLine($"profit = {profit}");
+                    Console.WriteLine("---------------------");
+                    Console.WriteLine("\n\n\n");
+#endif
                     return profit;
             }
             goto process_states;
+        }
+
+        public float PlaySplit()
+        {
+            return 0;
         }
 
         private BlackjackMove GetPlayerMove()
@@ -84,7 +118,7 @@ namespace SM
             var move = CurrentStrategy(this);
             if (move == BlackjackMove.Split)
             {
-                if (playerHandIndex == 2 && PlayerHand[0].BlackjackValue == PlayerHand[1].BlackjackValue)
+                if (PlayerHandIndex == 2 && PlayerHand[0].BlackjackValue == PlayerHand[1].BlackjackValue)
                     return BlackjackMove.Split;
                 else return BlackjackMove.Stand;
             }
