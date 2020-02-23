@@ -38,3 +38,11 @@ REPEAT
 UNTIL population has converged
 STOP
 ```
+
+Regras blackjack:
+
+- Using 4 decks of cards shuffled together
+- Dealer is required to hit until they have 17 (soft or hard)
+- You can double down on a hand that you split
+- There is no insurance
+- Blackjack pays 3:2

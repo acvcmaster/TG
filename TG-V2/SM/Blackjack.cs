@@ -55,11 +55,11 @@ namespace SM
                 case GameState.Hit:
                     break;
                 case GameState.Stand:
-                    GiveCard(DealerHand, ref dealerHandIndex);
+                    while (GetSum(DealerHand, dealerHandIndex) < 17) // Dealer stands on soft 17
+                        GiveCard(DealerHand, ref dealerHandIndex);
+
                     int playerSum = GetSum(PlayerHand, playerHandIndex);
                     int dealerSum = GetSum(DealerHand, dealerHandIndex);
-                    
-                    // if (dealerSum > 21)
 
                     Transition(ref state, GameState.FinalState);
                     break;
