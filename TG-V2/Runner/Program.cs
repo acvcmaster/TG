@@ -3,6 +3,7 @@
 using System;
 using SM;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Runner
 {
@@ -21,24 +22,37 @@ namespace Runner
 #else
             int population = 250;
             int games = 100000;
+            int generations = 1;
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
 
-            Deck deck = new Deck(4);
             float[] fitness = new float[population];
-            for (int j = 0; j < games; j++) // games
+            for (int generation = 1; generation <= generations; generation++)
             {
-                deck.Shuffle();
-                for (int i = 0; i < population; i++) // individuals
+                Parallel.For(0, games, j =>
                 {
-                    Blackjack game = new Blackjack(deck, (game) => BlackjackMove.Stand);
-                    game.Play();
-                }
-            }
+                    Deck deck = new Deck(4);
+                    deck.Shuffle();
+                    float[] fitnessIncrement = new float[population];
+                    for (int i = 0; i < population; i++) // games
+                    {
+                        Blackjack game = new Blackjack(deck, (game) => BlackjackMove.Stand);
+                        fitnessIncrement[i] += game.Play();
+                    }
 
+                    lock (fitness) // thread-safe
+                    {
+                        for (int i = 0; i < population; i++)
+                            fitness[i] += fitnessIncrement[i];
+                    }
+                });
+                Console.WriteLine($"Generation: {generation}");
+            }
             timer.Stop();
             Console.WriteLine("ms ellapsed: " + timer.ElapsedMilliseconds);
+            // for (int i = 0; i < fitness.Length; i++)
+            //     Console.Write(fitness[i] + ", ");
 #endif
 
 
