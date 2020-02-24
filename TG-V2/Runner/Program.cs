@@ -19,6 +19,11 @@ namespace Runner
             int population = 250;
             int games = 100000;
             int generations = 1;
+            float crossover = 0.5f;
+            int stagnation = 25;
+
+            var ga = new BlackJackGA();
+            ga.SetupGA(population, population, crossover, stagnation);
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -43,6 +48,7 @@ namespace Runner
                             fitness[i] += fitnessIncrement[i];
                     }
                 });
+
                 Console.WriteLine($"Generation: {generation}");
             }
             timer.Stop();
