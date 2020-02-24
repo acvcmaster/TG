@@ -9,18 +9,16 @@ namespace Runner
     {
         static void Main(string[] args)
         {
-#if DEBUG
-            Deck deck = new Deck(4);
-            for (; ; )
-            {
-                Blackjack game = new Blackjack(deck, InteractiveStrategy);
-                deck.Shuffle();
-                game.Play();
-            }
-#else
+            // Deck deck = new Deck(4);
+            // for (; ; )
+            // {
+            //     Blackjack game = new Blackjack(deck, InteractiveStrategy);
+            //     deck.Shuffle();
+            //     game.Play();
+            // }
             int population = 250;
             int games = 100000;
-            int generations = 20;
+            int generations = 1;
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -49,12 +47,7 @@ namespace Runner
             }
             timer.Stop();
             Console.WriteLine("ms ellapsed: " + timer.ElapsedMilliseconds);
-            // for (int i = 0; i < fitness.Length; i++)
-            //     Console.Write(fitness[i] + ", ");
-#endif
         }
-
-#if DEBUG
         static BlackjackMove InteractiveStrategy(BlackjackInformation info)
         {
             Console.Write("Your cards: ");
@@ -71,6 +64,5 @@ namespace Runner
                 if (success) { return move; }
             }
         }
-#endif
     }
 }

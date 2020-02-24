@@ -29,9 +29,6 @@ namespace SM
             {
                 PlayerHand = splitHand;
                 PlayerHandIndex = splitHandIndex;
-#if DEBUG
-                Console.WriteLine("Playing split...");
-#endif
             }
             float profit = 1f;
             GameState state = GameState.InitialState;
@@ -84,17 +81,6 @@ namespace SM
 
                     if (playerSum > 21 || CheckBlackjack(DealerHand) || (playerSum < dealerSum && dealerSum <= 21)) { profit = -profit; }
                     else if (playerSum == dealerSum) { profit = 0; }
-#if DEBUG
-                    Console.Write("Player: ");
-                    for (int i = 0; i < PlayerHandIndex; i++)
-                        Console.Write(PlayerHand[i].Name + ", ");
-                    Console.WriteLine();
-
-                    Console.Write("Dealer: ");
-                    for (int i = 0; i < DealerHandIndex; i++)
-                        Console.Write(DealerHand[i].Name + ", ");
-                    Console.WriteLine();
-#endif
 
                     Transition(ref state, GameState.FinalState);
                     break;
@@ -113,18 +99,10 @@ namespace SM
                     Transition(ref state, GameState.FinalState);
                     break;
                 case GameState.Bust:
-#if DEBUG
-                    Console.WriteLine("Bust!");
-#endif
                     profit = -profit;
                     Transition(ref state, GameState.FinalState);
                     break;
                 default:
-#if DEBUG
-                    Console.WriteLine($"profit = {profit}");
-                    Console.WriteLine("---------------------");
-                    Console.WriteLine("\n\n\n");
-#endif
                     return profit;
             }
             goto process_states;
@@ -132,9 +110,6 @@ namespace SM
 
         public float PlaySplit()
         {
-#if DEBUG
-            Console.WriteLine("Split!");
-#endif
             Card[] PlayerHand1 = new Card[21];
             Card[] PlayerHand2 = new Card[21];
 
