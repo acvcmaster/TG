@@ -15,8 +15,9 @@ https://cs230.stanford.edu/files_winter_2018/projects/6940282.pdf //Qlearning
 
 http://jogosdecartas.hut.com.br/vinte-e-um/?fbclid=IwAR16Q93GgQajpVb8mCW3J8l0Yrl7kdNdZwkJbzPb9xfzwsT3tagpKrZg0fM
 //Regras
-```
+
 https://github.com/giacomelli/GeneticSharp/issues/11 //Problema de fitness em grupo
+```
 
 Algoritmo genético :
 
