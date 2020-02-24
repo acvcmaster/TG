@@ -20,7 +20,7 @@ namespace Runner
 #else
             int population = 250;
             int games = 100000;
-            int generations = 1;
+            int generations = 20;
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -35,7 +35,7 @@ namespace Runner
                     float[] fitnessIncrement = new float[population];
                     for (int i = 0; i < population; i++) // games
                     {
-                        Blackjack game = new Blackjack(deck, (info) => BlackjackMove.Stand);
+                        Blackjack game = new Blackjack(deck, (info) => BlackjackMove.Split);
                         fitnessIncrement[i] += game.Play();
                     }
 

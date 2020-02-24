@@ -29,7 +29,9 @@ namespace SM
             {
                 PlayerHand = splitHand;
                 PlayerHandIndex = splitHandIndex;
+#if DEBUG
                 Console.WriteLine("Playing split...");
+#endif
             }
             float profit = 1f;
             GameState state = GameState.InitialState;
@@ -111,7 +113,9 @@ namespace SM
                     Transition(ref state, GameState.FinalState);
                     break;
                 case GameState.Bust:
+#if DEBUG
                     Console.WriteLine("Bust!");
+#endif
                     profit = -profit;
                     Transition(ref state, GameState.FinalState);
                     break;
@@ -128,7 +132,9 @@ namespace SM
 
         public float PlaySplit()
         {
+#if DEBUG
             Console.WriteLine("Split!");
+#endif
             Card[] PlayerHand1 = new Card[21];
             Card[] PlayerHand2 = new Card[21];
 
