@@ -6,7 +6,7 @@ using GeneticSharp.Domain.Terminations;
 
 namespace Runner
 {
-    public class BlackJackGA
+    public class BlackjackGA
     {
         public GeneticAlgorithm SetupGA(int minPop, int maxPop, float crossProbability, int stagGenNumber)
         {
@@ -17,8 +17,10 @@ namespace Runner
                 new int[] { 5, 5, 5, 5 },
                 new int[] { 0, 0, 0, 0 });
 
+            //TODO: implementar
             var population = new BlackjackPopulation(minPop, maxPop, chromosome);
 
+            //TODO: implementar
             var fitness = new BlackjackFitness(population);
 
             var selection = new TournamentSelection();

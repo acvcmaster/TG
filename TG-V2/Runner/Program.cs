@@ -22,7 +22,7 @@ namespace Runner
             float crossover = 0.5f;
             int stagnation = 25;
 
-            var ga = new BlackJackGA();
+            var ga = new BlackjackGA();
             ga.SetupGA(population, population, crossover, stagnation);
 
             Stopwatch timer = new Stopwatch();
