@@ -69,7 +69,7 @@ namespace SM
 
                     if (playerSum > 21 || CheckBlackjack(DealerHand) || (playerSum < dealerSum && dealerSum <= 21)) { profit = -profit; }
                     else if (playerSum == dealerSum) { profit = 0; }
-#if INTERACTIVE
+#if DEBUG
                     Console.Write("Player: ");
                     for (int i = 0; i < PlayerHandIndex; i++)
                         Console.Write(PlayerHand[i].Name + ", ");
@@ -98,11 +98,12 @@ namespace SM
                     Transition(ref state, GameState.FinalState);
                     break;
                 case GameState.Bust:
+                    Console.WriteLine("Bust!");
                     profit = -profit;
                     Transition(ref state, GameState.FinalState);
                     break;
                 default:
-#if INTERACTIVE
+#if DEBUG
                     Console.WriteLine($"profit = {profit}");
                     Console.WriteLine("---------------------");
                     Console.WriteLine("\n\n\n");

@@ -1,6 +1,4 @@
-﻿// #define INTERACTIVE
-
-using System;
+﻿using System;
 using SM;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -11,9 +9,9 @@ namespace Runner
     {
         static void Main(string[] args)
         {
-#if INTERACTIVE
+#if DEBUG
             Deck deck = new Deck(4);
-            for (;;)
+            for (; ; )
             {
                 Blackjack game = new Blackjack(deck, InteractiveStrategy);
                 deck.Shuffle();
@@ -54,10 +52,9 @@ namespace Runner
             // for (int i = 0; i < fitness.Length; i++)
             //     Console.Write(fitness[i] + ", ");
 #endif
-
-
         }
 
+#if DEBUG
         static BlackjackMove InteractiveStrategy(Blackjack game)
         {
             Console.Write("Your cards: ");
@@ -74,5 +71,6 @@ namespace Runner
                 if (success) { return move; }
             }
         }
+#endif
     }
 }
