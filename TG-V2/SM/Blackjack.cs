@@ -57,7 +57,7 @@ namespace SM
                 case GameState.Hit:
                     GiveCard(PlayerHand, ref PlayerHandIndex);
                     if (GetSum(PlayerHand, PlayerHandIndex) > 21)
-                        Transition(ref state, GameState.Stand);
+                        Transition(ref state, GameState.Bust);
                     else Transition(ref state, GameState.PlayerTurn);
                     break;
                 case GameState.Stand:
@@ -95,6 +95,10 @@ namespace SM
                     break;
                 case GameState.Split:
                     profit = PlaySplit();
+                    Transition(ref state, GameState.FinalState);
+                    break;
+                case GameState.Bust:
+                    profit = -profit;
                     Transition(ref state, GameState.FinalState);
                     break;
                 default:

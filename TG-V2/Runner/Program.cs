@@ -13,7 +13,7 @@ namespace Runner
         {
 #if INTERACTIVE
             Deck deck = new Deck(4);
-            for (; ; )
+            for (;;)
             {
                 Blackjack game = new Blackjack(deck, InteractiveStrategy);
                 deck.Shuffle();
