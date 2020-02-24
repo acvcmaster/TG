@@ -19,4 +19,10 @@ namespace SM
         Split,
         DoubleDown
     }
+    public enum SplitState : int
+    {
+        InitialState,
+        Hand1Turn
+
+    }
 }

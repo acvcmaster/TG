@@ -35,7 +35,7 @@ namespace Runner
                     float[] fitnessIncrement = new float[population];
                     for (int i = 0; i < population; i++) // games
                     {
-                        Blackjack game = new Blackjack(deck, (game) => BlackjackMove.Stand);
+                        Blackjack game = new Blackjack(deck, (info) => BlackjackMove.Stand);
                         fitnessIncrement[i] += game.Play();
                     }
 
@@ -55,13 +55,13 @@ namespace Runner
         }
 
 #if DEBUG
-        static BlackjackMove InteractiveStrategy(Blackjack game)
+        static BlackjackMove InteractiveStrategy(BlackjackInformation info)
         {
             Console.Write("Your cards: ");
-            for (int i = 0; i < game.PlayerHandIndex; i++)
-                Console.Write($"{game.PlayerHand[i].Name}{ (i + 1 != game.PlayerHandIndex ? ", " : "") }");
+            for (int i = 0; i < info.PlayerHandIndex; i++)
+                Console.Write($"{info.PlayerHand[i].Name}{ (i + 1 != info.PlayerHandIndex ? ", " : "") }");
             Console.WriteLine();
-            Console.WriteLine($"Dealer faceup card: {game.DealerFaceupCard.Name}");
+            Console.WriteLine($"Dealer faceup card: {info.DealerFaceupCard.Name}");
 
             while (true)
             {

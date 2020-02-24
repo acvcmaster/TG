@@ -20,23 +20,36 @@ namespace SM
             CurrentStrategy = strategy;
         }
         public BlackjackStrategy CurrentStrategy { get; }
-        public float Play()
+        public float Play(Card[] splitHand = null, int splitHandIndex = 0, bool IsSplit = false)
         {
+            var PlayerHand = this.PlayerHand;
+            var PlayerHandIndex = this.PlayerHandIndex;
+
+            if (splitHand != null && IsSplit)
+            {
+                PlayerHand = splitHand;
+                PlayerHandIndex = splitHandIndex;
+                Console.WriteLine("Playing split...");
+            }
             float profit = 1f;
             GameState state = GameState.InitialState;
         process_states:
             switch (state)
             {
                 case GameState.InitialState:
-                    GiveCard(PlayerHand, ref PlayerHandIndex);
-                    GiveCard(PlayerHand, ref PlayerHandIndex);
-                    GiveCard(DealerHand, ref DealerHandIndex, true);
+                    if (!IsSplit)
+                    {
+                        GiveCard(PlayerHand, ref PlayerHandIndex);
+                        GiveCard(PlayerHand, ref PlayerHandIndex);
+                        GiveCard(DealerHand, ref DealerHandIndex, true);
+                    }
+
                     Transition(ref state, GameState.PlayerTurn);
                     if (CheckBlackjack(PlayerHand))
                         Transition(ref state, GameState.PlayerBlackjack);
                     break;
                 case GameState.PlayerTurn:
-                    var move = GetPlayerMove();
+                    var move = GetPlayerMove(PlayerHand, PlayerHandIndex, IsSplit);
 
                     switch (move)
                     {
@@ -115,15 +128,28 @@ namespace SM
 
         public float PlaySplit()
         {
-            return 0;
+            Console.WriteLine("Split!");
+            Card[] PlayerHand1 = new Card[21];
+            Card[] PlayerHand2 = new Card[21];
+
+            int PlayerHand1Index = 1;
+            int PlayerHand2Index = 1;
+
+            PlayerHand1[0] = PlayerHand[0];
+            PlayerHand2[0] = PlayerHand[1];
+
+            GiveCard(PlayerHand1, ref PlayerHand1Index);
+            GiveCard(PlayerHand2, ref PlayerHand2Index);
+
+            return Play(PlayerHand1, PlayerHand1Index, true) + Play(PlayerHand2, PlayerHand2Index, true);
         }
 
-        private BlackjackMove GetPlayerMove()
+        private BlackjackMove GetPlayerMove(Card[] PlayerHand, int PlayerHandIndex, bool IsSplit = false)
         {
-            var move = CurrentStrategy(this);
+            var move = CurrentStrategy(new BlackjackInformation(this.DealerFaceupCard, PlayerHand, PlayerHandIndex, IsSplit));
             if (move == BlackjackMove.Split)
             {
-                if (PlayerHandIndex == 2 && PlayerHand[0].BlackjackValue == PlayerHand[1].BlackjackValue)
+                if (PlayerHandIndex == 2 && PlayerHand[0].BlackjackValue == PlayerHand[1].BlackjackValue && !IsSplit)
                     return BlackjackMove.Split;
                 else return BlackjackMove.Stand;
             }
@@ -132,6 +158,7 @@ namespace SM
         }
 
         private void Transition(ref GameState state, GameState next) { state = next; }
+        private void Transition(ref SplitState state, SplitState next) { state = next; }
         private void GiveCard(Card[] hand, ref int index, bool dealerFaceup = false)
         {
             var card = Deck.Cards[deckIndex];
