@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
-    <ProjectReference Include="..\SM\SM.csproj" />
+    <ProjectReference Include="..\SM\SM.csproj"/>
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="GeneticSharp" Version="*"/>
+  </ItemGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
-
 </Project>
