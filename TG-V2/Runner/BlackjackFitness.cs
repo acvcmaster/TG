@@ -5,16 +5,17 @@ namespace Runner
 {
     public class BlackjackFitness : IFitness
     {
-        public BlackjackFitness(BlackjackPopulation myPopulation)
+        public BlackjackFitness(BlackjackPopulation population)
         {
-            MyPopulation = myPopulation;
+            this.Population = population;
         }
 
-        public BlackjackPopulation MyPopulation { get; }
+        public BlackjackPopulation Population { get; }
 
         public double Evaluate(IChromosome chromosome)
         {
-            throw new System.NotImplementedException();
+            int hash = Population.GetChromosomeHash(chromosome);
+            return Population.GenerationFitness[hash];
         }
     }
 }

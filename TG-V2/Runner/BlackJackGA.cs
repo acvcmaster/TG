@@ -1,4 +1,5 @@
 ﻿using GeneticSharp.Domain;
+using GeneticSharp.Domain.Mutations;
 using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Crossovers;
 using GeneticSharp.Domain.Selections;
@@ -6,19 +7,19 @@ using GeneticSharp.Domain.Terminations;
 
 namespace Runner
 {
-    public class BlackjackGA
+    public static class BlackjackGA
     {
-        public GeneticAlgorithm SetupGA(int minPop, int maxPop, float crossProbability, int stagGenNumber)
+        public static GeneticAlgorithm SetupGA(int maxPop, int games, float crossProbability, int stagGenNumber)
         {
             //TODO: ver quantas variáveis irão existir depois
             var chromosome = new FloatingPointChromosome(
                 new double[] { -10, -10, -10, -10 },
                 new double[] { 10, 10, 10, 10 },
-                new int[] { 5, 5, 5, 5 },
+                new int[] { 64, 64, 64, 64 },
                 new int[] { 0, 0, 0, 0 });
 
             //TODO: implementar
-            var population = new BlackjackPopulation(minPop, maxPop, chromosome);
+            var population = new BlackjackPopulation(maxPop, games, chromosome);
 
             //TODO: implementar
             var fitness = new BlackjackFitness(population);
@@ -28,8 +29,8 @@ namespace Runner
             //TODO: ver se vai testar outro método
             var crossover = new UniformCrossover(crossProbability);
 
-            //Mutação no caso não é bom, então faremos 0% de mutação
-            var mutation = new BlackjackMutation();
+            #warning Mutação no caso não é bom, então faremos 0% de mutação, Antonio: Nada a ver
+            var mutation = new FlipBitMutation();
 
             var termination = new FitnessStagnationTermination(stagGenNumber);
 
