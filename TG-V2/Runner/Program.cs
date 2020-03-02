@@ -1,7 +1,7 @@
 ﻿using System;
 using SM;
+using GeneticSharp.Domain;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace Runner
 {
@@ -20,8 +20,24 @@ namespace Runner
             int games = 100000;
             float crossover = 0.5f;
             int stagnation = 25;
+            int parallelism = 16;
 
-            var ga = BlackjackGA.SetupGA(population, games, crossover, stagnation);
+            Console.Write("Setting up.. ");
+            var ga = BlackjackGA.SetupGA(population, games, crossover, stagnation, parallelism);
+            RandomDecks.GenerateRandomDecks(4);
+            Stopwatch timer = new Stopwatch();
+            Console.WriteLine("Setup done.");
+            ga.GenerationRan += (gen, ev) =>
+            {
+                timer.Stop();
+                var millis = timer.ElapsedMilliseconds;
+                var algorithm = gen as GeneticAlgorithm;
+                Console.WriteLine($"Generation {algorithm.GenerationsNumber} ended (took {millis} ms)!");
+                timer.Reset();
+                timer.Start();
+            };
+            Console.WriteLine("Algorithm started.");
+            timer.Start();
             ga.Start();
         }
         static BlackjackMove InteractiveStrategy(BlackjackInformation info)
