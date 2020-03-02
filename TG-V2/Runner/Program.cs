@@ -24,7 +24,7 @@ namespace Runner
 
             Console.Write("Setting up.. ");
             var ga = BlackjackGA.SetupGA(population, games, crossover, stagnation, parallelism);
-            RandomDecks.GenerateRandomDecks(4);
+            RandomDecks.GenerateRandomDecks();
             Stopwatch timer = new Stopwatch();
             Console.WriteLine("Setup done.");
             ga.GenerationRan += (gen, ev) =>

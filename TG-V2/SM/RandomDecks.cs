@@ -7,7 +7,7 @@ namespace SM
         private static Random random = new Random();
         private static Deck[] randomDecks;
         public static int Count { get; set; }
-        public static void GenerateRandomDecks(int DeckCount, int count = 100000)
+        public static void GenerateRandomDecks(int count = 100000, int DeckCount = 4)
         {
             Count = count;
             randomDecks = new Deck[count];
