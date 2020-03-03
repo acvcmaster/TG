@@ -2,6 +2,7 @@
 using SM;
 using GeneticSharp.Domain;
 using System.Diagnostics;
+using GeneticSharp.Domain.Chromosomes;
 
 namespace Runner
 {
@@ -32,7 +33,10 @@ namespace Runner
                 timer.Stop();
                 var millis = timer.ElapsedMilliseconds;
                 var algorithm = gen as GeneticAlgorithm;
+                var best = algorithm.BestChromosome as FloatingPointChromosome;
                 Console.WriteLine($"Generation {algorithm.GenerationsNumber} ended (took {millis} ms)!");
+                // Console.WriteLine($"Best value = {best.ToFloatingPoints()[0]}");
+                Console.WriteLine($"Best fitness = {best.Fitness}");
                 timer.Reset();
                 timer.Start();
             };

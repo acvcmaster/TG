@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using GeneticSharp.Domain.Chromosomes;
+﻿using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Fitnesses;
 using SM;
 
@@ -16,7 +15,7 @@ namespace Runner
 
         public double Evaluate(IChromosome chromosome)
         {
-            object fitness_mutex = new object();
+            var values = (chromosome as FloatingPointChromosome).ToFloatingPoints();
             double fitness = 0;
             for (int i = 0; i < Games; i++)
             {
