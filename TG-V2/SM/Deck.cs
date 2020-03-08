@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using Util;
 
 namespace SM
 {
@@ -20,18 +20,6 @@ namespace SM
                     }
         }
 
-        /// <summary>
-        /// Fisher-Yates shuffle. [Complexity: O(n)]
-        /// </summary>
-        public void Shuffle()
-        {
-            for (int i = 0; i < Cards.Length; i++)
-            {
-                var j = rng.Next(0, i + 1);
-                var temp = Cards[i];
-                Cards[i] = Cards[j];
-                Cards[j] = temp;
-            }
-        }
+        public void Shuffle() => Cards.Shuffle();
     }
 }

@@ -19,7 +19,7 @@ namespace Runner
             double fitness = 0;
             for (int i = 0; i < Games; i++)
             {
-                Blackjack game = new Blackjack(RandomDecks.PickRandom(), (game) => BlackjackMove.Stand);
+                Blackjack game = new Blackjack(RandomDecks.PickRandom(), (game) => (game.PlayerSum > values[0] ? BlackjackMove.Stand : BlackjackMove.Hit));
                 fitness += game.Play();
             }
             return fitness;

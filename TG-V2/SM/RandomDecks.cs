@@ -1,10 +1,9 @@
-using System;
+using Util;
 
 namespace SM
 {
     public static class RandomDecks
     {
-        private static Random random = new Random();
         private static Deck[] randomDecks;
         public static int Count { get; set; }
         public static void GenerateRandomDecks(int count = 100000, int DeckCount = 4)
@@ -20,7 +19,7 @@ namespace SM
 
         public static Deck PickRandom()
         {
-            int index = random.Next(Count);
+            int index = StaticRandom.Next(Count);
             return randomDecks[index];
         }
     }

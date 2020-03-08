@@ -8,6 +8,10 @@ namespace SM
         public Card[] PlayerHand { get; }
         public int PlayerHandIndex { get; }
         public bool IsSplit { get; }
+        public int PlayerSum
+        {
+            get { return Blackjack.GetSum(PlayerHand, PlayerHandIndex); }
+        }
 
         public BlackjackInformation(Card DealerFaceupCard, Card[] PlayerHand, int PlayerHandIndex, bool IsSplit)
         {
