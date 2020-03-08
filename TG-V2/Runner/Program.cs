@@ -56,22 +56,22 @@ namespace Runner
             timer.Start();
             ga.Start();
 
-            for (int sum = 0; sum <= 21; sum++)
-            {
-                double fitnesstotal = 0;
-                int n = 10;
-                for (int i = 0; i < n; i++)
-                {
-                    double fitness = 0;
-                    for (int j = 0; j < 100000; j++)
-                    {
-                        Blackjack game = new Blackjack(RandomDecks.PickRandom(), (game) => (game.PlayerSum > sum ? BlackjackMove.Stand : BlackjackMove.Hit));
-                        fitness += game.Play();
-                    }
-                    fitnesstotal += fitness;
-                }
-                Console.WriteLine($"{sum} => {fitnesstotal/n}");
-            }
+            // for (int sum = 0; sum <= 21; sum++)
+            // {
+            //     double fitnesstotal = 0;
+            //     int n = 10;
+            //     for (int i = 0; i < n; i++)
+            //     {
+            //         double fitness = 0;
+            //         for (int j = 0; j < 100000; j++)
+            //         {
+            //             Blackjack game = new Blackjack(RandomDecks.PickRandom(), (game) => (game.PlayerSum > sum ? BlackjackMove.Stand : BlackjackMove.Hit));
+            //             fitness += game.Play();
+            //         }
+            //         fitnesstotal += fitness;
+            //     }
+            //     Console.WriteLine($"{sum} => {fitnesstotal/n}");
+            // }
         }
         static BlackjackMove InteractiveStrategy(BlackjackInformation info)
         {
