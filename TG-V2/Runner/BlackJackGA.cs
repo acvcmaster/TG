@@ -15,10 +15,10 @@ namespace Runner
         {
             //TODO: ver quantas variáveis irão existir depois
             var chromosome = new FloatingPointChromosome(
-                new double[] { 0 },
-                new double[] { 21 },
-                new int[] { 18 },
-                new int[] { 4 });
+                new double[] { 0, 0, 0 },
+                new double[] { 21, 21, 21 },
+                new int[] { 18, 18, 18 },
+                new int[] { 4, 4, 4 });
 
             //TODO: implementar
             var population = new Population(maxPop, maxPop, chromosome);
