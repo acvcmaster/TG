@@ -17,6 +17,8 @@ http://jogosdecartas.hut.com.br/vinte-e-um/?fbclid=IwAR16Q93GgQajpVb8mCW3J8l0Yrl
 //Regras
 
 https://github.com/giacomelli/GeneticSharp/issues/11 //Problema de fitness em grupo
+
+https://github.com/jeffheaton/encog-dotnet-core // Biblioteca NN
 ```
 
 Algoritmo genético :
