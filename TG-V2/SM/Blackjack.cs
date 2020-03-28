@@ -1,6 +1,5 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
+using Util;
+using Util.Models;
 
 namespace SM
 {
@@ -44,7 +43,7 @@ namespace SM
                     }
 
                     Transition(ref state, GameState.PlayerTurn);
-                    if (CheckBlackjack(PlayerHand))
+                    if (BlackjackStatic.CheckBlackjack(PlayerHand))
                         Transition(ref state, GameState.PlayerBlackjack);
                     break;
                 case GameState.PlayerTurn:
@@ -68,18 +67,18 @@ namespace SM
                     break;
                 case GameState.Hit:
                     GiveCard(PlayerHand, ref PlayerHandIndex);
-                    if (GetSum(PlayerHand, PlayerHandIndex) > 21)
+                    if (BlackjackStatic.GetSum(PlayerHand, PlayerHandIndex) > 21)
                         Transition(ref state, GameState.Bust);
                     else Transition(ref state, GameState.PlayerTurn);
                     break;
                 case GameState.Stand:
-                    while (GetSum(DealerHand, DealerHandIndex) < 17) // Dealer stands on soft 17
+                    while (BlackjackStatic.GetSum(DealerHand, DealerHandIndex) < 17) // Dealer stands on soft 17
                         GiveCard(DealerHand, ref DealerHandIndex);
 
-                    int playerSum = GetSum(PlayerHand, PlayerHandIndex);
-                    int dealerSum = GetSum(DealerHand, DealerHandIndex);
+                    int playerSum = BlackjackStatic.GetSum(PlayerHand, PlayerHandIndex);
+                    int dealerSum = BlackjackStatic.GetSum(DealerHand, DealerHandIndex);
 
-                    if (playerSum > 21 || CheckBlackjack(DealerHand) || (playerSum < dealerSum && dealerSum <= 21)) { profit = -profit; }
+                    if (playerSum > 21 || BlackjackStatic.CheckBlackjack(DealerHand) || (playerSum < dealerSum && dealerSum <= 21)) { profit = -profit; }
                     else if (playerSum == dealerSum) { profit = 0; }
 
                     Transition(ref state, GameState.FinalState);
@@ -91,7 +90,7 @@ namespace SM
                     break;
                 case GameState.PlayerBlackjack:
                     GiveCard(DealerHand, ref DealerHandIndex);
-                    profit = CheckBlackjack(DealerHand) ? 0 : 1.5f;
+                    profit = BlackjackStatic.CheckBlackjack(DealerHand) ? 0 : 1.5f;
                     Transition(ref state, GameState.FinalState);
                     break;
                 case GameState.Split:
@@ -148,30 +147,6 @@ namespace SM
                 this.DealerFaceupCard = card;
             deckIndex++;
             index++;
-        }
-        private static bool CheckBlackjack(Card[] hand)
-        {
-            return hand[0].FaceValue == FaceValue.Ace && hand[1].BlackjackValue == 10 ||
-                hand[1].FaceValue == FaceValue.Ace && hand[0].BlackjackValue == 10;
-        }
-
-        public static int GetSum(Card[] hand, int length)
-        {
-            int sum = 0;
-            int aces = 0;
-            for (int i = 0; i < length; i++)
-            {
-                Card card = hand[i];
-                if (card.FaceValue != FaceValue.Ace)
-                    sum += card.BlackjackValue;
-                else aces++;
-            }
-
-            if (aces > 0)
-                if (sum + aces <= 11)
-                    aces += 10;
-
-            return sum + aces;
         }
     }
 }

@@ -6,6 +6,9 @@ using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
 using GeneticSharp.Domain.Populations;
 using GeneticSharp.Infrastructure.Framework.Threading;
+using Util;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Runner
 {
@@ -13,12 +16,12 @@ namespace Runner
     {
         public static GeneticAlgorithm SetupGA(int maxPop, int games, float crossProbability, float mutationProbability, int maxGenerations, int degreeOfParallelism)
         {
-            //TODO: ver quantas variáveis irão existir depois
-            var chromosome = new FloatingPointChromosome(
-                new double[] { 0, 0, 0 },
-                new double[] { 21, 21, 21 },
-                new int[] { 18, 18, 18 },
-                new int[] { 4, 4, 4 });
+            var low = Enumerable.Repeat(Global.GeneticRangeLow, Global.WeightCount).ToArray();
+            var high = Enumerable.Repeat(Global.GeneticRangeHigh, Global.WeightCount).ToArray();
+            var bits = Enumerable.Repeat(Global.GenomeBits, Global.WeightCount).ToArray();
+            var digits = Enumerable.Repeat(Global.FractionDigits, Global.WeightCount).ToArray();
+
+            var chromosome = new FloatingPointChromosome(low, high, bits, digits);
 
             //TODO: implementar
             var population = new Population(maxPop, maxPop, chromosome);

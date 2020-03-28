@@ -1,4 +1,4 @@
-namespace SM
+namespace Util.Models
 {
     public enum GameState : int
     {

@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace SM
+namespace Util.Models
 {
     public class BlackjackInformation
     {
@@ -10,7 +8,7 @@ namespace SM
         public bool IsSplit { get; }
         public int PlayerSum
         {
-            get { return Blackjack.GetSum(PlayerHand, PlayerHandIndex); }
+            get { return BlackjackStatic.GetSum(PlayerHand, PlayerHandIndex); }
         }
 
         public BlackjackInformation(Card DealerFaceupCard, Card[] PlayerHand, int PlayerHandIndex, bool IsSplit)

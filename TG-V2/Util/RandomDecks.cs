@@ -1,6 +1,6 @@
-using Util;
+using Util.Models;
 
-namespace SM
+namespace Util
 {
     public static class RandomDecks
     {

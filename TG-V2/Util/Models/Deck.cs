@@ -1,7 +1,6 @@
 using System;
-using Util;
 
-namespace SM
+namespace Util.Models
 {
     public class Deck
     {
