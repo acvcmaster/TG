@@ -21,6 +21,7 @@ namespace Util
                     result.AddLayer(new BasicLayer(new ActivationSigmoid(), Global.NNBiases[i], Global.NNHiddenLayers[i]));
 
                 result.AddLayer(new BasicLayer(new ActivationSigmoid(), false, 1)); // saída
+                result.Structure.FinalizeStructure();
                 return result;
             });
 

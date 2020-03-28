@@ -12,15 +12,8 @@ namespace Runner
     {
         static void Main(string[] args)
         {
-            int population = 250;
-            int games = 100000;
-            float crossover = 0.5f;
-            int maxGenerations = 100;
-            float mutation = 0.2f;
-            int parallelism = 16;
-
             Console.Write("Setting up.. ");
-            var ga = BlackjackGA.SetupGA(population, games, crossover, mutation, maxGenerations, parallelism);
+            var ga = BlackjackGA.SetupGA(Global.Population, Global.Games, Global.Crossover, Global.Mutation, Global.MaxGenerations, Global.Parallelism);
             RandomDecks.GenerateRandomDecks();
             Stopwatch timer = new Stopwatch();
             Console.WriteLine("Setup done.");
@@ -30,10 +23,14 @@ namespace Runner
                 var millis = timer.ElapsedMilliseconds;
                 var algorithm = gen as GeneticAlgorithm;
                 var best = algorithm.BestChromosome as FloatingPointChromosome;
+                var values = best.ToFloatingPoints();
                 Console.WriteLine($"Generation {algorithm.GenerationsNumber} ended (took {millis} ms)!");
                 Console.WriteLine($"Best fitness = {best.Fitness}");
-                Console.WriteLine($"Best chromosome = ({best.ToFloatingPoints().Print()})");
-                Console.WriteLine($"Best phenotype = {best.ToFloatingPoints().Sum()}");
+                Console.WriteLine($"Best chromosome = ({values.Print()})");
+                Console.Write("Generating diagram.. ");
+                var diagram = Diagrammer.Generate(values);
+                Diagrammer.Save(diagram, $"Diagrams/Generation_{algorithm.GenerationsNumber}.png");
+                Console.WriteLine($"Done (saved to 'Diagrams/Generation_{algorithm.GenerationsNumber}.png').");
                 timer.Reset();
                 timer.Start();
             };
