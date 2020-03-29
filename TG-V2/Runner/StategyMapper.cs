@@ -5,7 +5,7 @@ namespace Runner
 {
     public static class StrategyMapper
     {
-        private static readonly int[] tables = new int[] { 160, 240, 340 };
+        public static readonly int[] Tables = new int[] { 160, 240, 340 };
         public static BlackjackMove GetMove(BlackjackInformation information, BlackjackMove[] moves)
         {
             if (information.PlayerSum == 21)
@@ -32,8 +32,8 @@ namespace Runner
         private static int GetIndex(Table table, int dealerCard, int verticalIndex)
         {
             int itable = (int)table;
-            int startIndex = (itable - 1) < 0 ? 0 : tables[itable - 1];
-            int endIndex = tables[itable];
+            int startIndex = (itable - 1) < 0 ? 0 : Tables[itable - 1];
+            int endIndex = Tables[itable];
             int dealerCardIndex = dealerCard == 1 ? 9 : dealerCard - 2;
 
             int result = startIndex + (10 * verticalIndex + dealerCardIndex);

@@ -10,6 +10,7 @@ namespace Runner
         static void Main(string[] args)
         {
             Console.Write("Setting up.. ");
+            var date = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
             var ga = BlackjackGA.SetupGA();
             RandomDecks.GenerateRandomDecks();
             Stopwatch timer = new Stopwatch();
@@ -22,8 +23,10 @@ namespace Runner
                 var best = algorithm.BestChromosome as BlackjackChromosome;
                 Console.WriteLine($"Generation {algorithm.GenerationsNumber} ended (took {millis} ms)!");
                 Console.WriteLine($"Best fitness = {best.Fitness}");
+                Console.Write($"Generating diagram for generation {algorithm.GenerationsNumber}.. ");
+                Console.WriteLine("Done.");
                 var diagram = Diagrammer.Generate(best);
-                Diagrammer.Save(diagram, $"Diagrams/{algorithm.GenerationsNumber}.png");
+                Diagrammer.Save(diagram, algorithm.GenerationsNumber, date);
                 timer.Reset();
                 timer.Start();
             };
