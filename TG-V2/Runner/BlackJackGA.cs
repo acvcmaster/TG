@@ -7,7 +7,6 @@ using GeneticSharp.Domain.Terminations;
 using GeneticSharp.Domain.Populations;
 using GeneticSharp.Infrastructure.Framework.Threading;
 using Util;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Runner

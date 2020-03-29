@@ -14,5 +14,10 @@ namespace Util
         {
             return random.Value.Next(max);
         }
+
+        public static double NextDouble(double min, double max)
+        {
+            return min + (max - min) * random.Value.NextDouble();
+        }
     }
 }

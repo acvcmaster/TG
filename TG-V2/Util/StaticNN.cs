@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using Encog.Engine.Network.Activation;
 using Encog.ML.Data;
@@ -6,6 +8,7 @@ using Encog.Neural.Networks;
 using Encog.Neural.Networks.Layers;
 using Encog.Util.KMeans;
 using Util.Models;
+using Encog.ML.Data.Basic;
 
 namespace Util
 {
@@ -15,12 +18,12 @@ namespace Util
             new ThreadLocal<BasicNetwork>(() =>
             {
                 var result = new BasicNetwork();
-                result.AddLayer(new BasicLayer(null, false, 3)); // entradas
+                result.AddLayer(new BasicLayer(null, false, Global.NNInputLayer)); // entradas
 
                 for (int i = 0; i < Global.NNHiddenLayers.Length; i++) // hidden
                     result.AddLayer(new BasicLayer(new ActivationSigmoid(), Global.NNBiases[i], Global.NNHiddenLayers[i]));
 
-                result.AddLayer(new BasicLayer(new ActivationSigmoid(), false, 1)); // saída
+                result.AddLayer(new BasicLayer(new ActivationSigmoid(), false, Global.NNOutputLayer)); // saída
                 result.Structure.FinalizeStructure();
                 return result;
             });
@@ -28,7 +31,7 @@ namespace Util
         public static void SetWeights(double[] weights)
         {
             int count = 0;
-            var layers = new ConcactableArray<int>() { 3, Global.NNHiddenLayers, 1 };
+            var layers = new ConcactableArray<int>() { Global.NNInputLayer, Global.NNHiddenLayers, Global.NNOutputLayer };
 
             for (int layer = 0; layer < layers.Length - 1; layer++)
             {
@@ -47,38 +50,24 @@ namespace Util
         public static BlackjackMove Compute(BlackjackInformation info)
         {
             var NN = network.Value;
-            var result = NN.Compute(new BlackjackMLData(info))[0];
-            BlackjackMove move = BlackjackMove.Stand;
-            if (result >= 0 && result < 0.5)
-                move = BlackjackMove.DoubleDown;
-            else if (result >= 0.5 && result < 1)
-                move = BlackjackMove.Split;
-            else if (result > 1)
-                move = BlackjackMove.Hit;
-            return move;
-        }
-    }
-
-    class BlackjackMLData : IMLData
-    {
-        private BlackjackInformation innerInfo;
-        private double[] inner;
-        public double this[int x] => inner[x];
-        public int Count => inner.Length;
-
-        public BlackjackMLData(BlackjackInformation information)
-        {
-            innerInfo = information;
-            inner = new double[3]
+            double[] input = new double[Global.NNInputLayer]
             {
-                (double)information.PlayerSum,
-                (double)information.DealerFaceupCard.FaceValue,
-                information.IsSplit ? 1 : 0
+                (double)info.PlayerSum,
+                (double)info.DealerFaceupCard.FaceValue,
+                info.IsSplit ? 1 : 0,
+                (double)info.PlayerHand[0].FaceValue,
+                (double)info.PlayerHand[1].FaceValue
             };
+            var result = NN.Compute(new BasicMLData(input));
+            double max = -1;
+            int index = 0;
+            for (int i = 0; i < Global.NNOutputLayer; i++)
+                if (result[i] > max)
+                {
+                    max = result[i];
+                    index = i;
+                }
+            return (BlackjackMove)index;
         }
-
-        public object Clone() => new BlackjackMLData(innerInfo);
-        public void CopyTo(double[] target, int targetIndex, int count) => Buffer.BlockCopy(inner, 0, target, targetIndex, count);
-        public ICentroid<IMLData> CreateCentroid() => null;
     }
 }

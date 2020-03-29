@@ -13,6 +13,7 @@ namespace Util
         public void Add(T element) => inner.Add(element);
         public void Add(ConcactableArray<T> elements) => inner.AddRange(elements);
         public void Add(params T[] elements) => inner.AddRange(elements);
+        public void Add(IEnumerable<T> elements) => inner.AddRange(elements);
     }
 
     public interface IPseudoArray<T>

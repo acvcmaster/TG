@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Runner
 {
-    class Program
+    public partial class Program
     {
         static void Main(string[] args)
         {

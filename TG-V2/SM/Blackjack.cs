@@ -138,7 +138,6 @@ namespace SM
         }
 
         private void Transition(ref GameState state, GameState next) { state = next; }
-        private void Transition(ref SplitState state, SplitState next) { state = next; }
         private void GiveCard(Card[] hand, ref int index, bool dealerFaceup = false)
         {
             var card = Deck.Cards[deckIndex];

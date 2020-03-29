@@ -16,13 +16,7 @@ namespace Util.Models
     {
         Hit = 0,
         Stand,
-        Split,
-        DoubleDown
-    }
-    public enum SplitState : int
-    {
-        InitialState,
-        Hand1Turn
-
+        DoubleDown,
+        Split
     }
 }
