@@ -1,3 +1,4 @@
+using System;
 using Util;
 using Util.Models;
 
@@ -94,8 +95,12 @@ namespace SM
                     Transition(ref state, GameState.FinalState);
                     break;
                 case GameState.Split:
-                    profit = PlaySplit();
-                    Transition(ref state, GameState.FinalState);
+                    if (PlayerHandIndex == 2 && PlayerHand[0].BlackjackValue == PlayerHand[1].BlackjackValue)
+                    {
+                        profit = PlaySplit();
+                        Transition(ref state, GameState.FinalState);
+                    }
+                    else throw new InvalidOperationException();
                     break;
                 case GameState.Bust:
                     profit = -profit;
@@ -127,13 +132,6 @@ namespace SM
         private BlackjackMove GetPlayerMove(Card[] PlayerHand, int PlayerHandIndex, bool IsSplit = false)
         {
             var move = CurrentStrategy(new BlackjackInformation(this.DealerFaceupCard, PlayerHand, PlayerHandIndex, IsSplit));
-            if (move == BlackjackMove.Split)
-            {
-                if (PlayerHandIndex == 2 && PlayerHand[0].BlackjackValue == PlayerHand[1].BlackjackValue && !IsSplit)
-                    return BlackjackMove.Split;
-                else return BlackjackMove.Stand;
-            }
-
             return move;
         }
 

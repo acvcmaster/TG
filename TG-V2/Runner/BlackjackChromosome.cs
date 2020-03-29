@@ -11,7 +11,7 @@ namespace Runner
         {
             Moves = new BlackjackMove[340];
             for (int i = 0; i < 340; i++)
-                Moves[i] = StaticRandom.NextMove();
+                Moves[i] = StaticRandom.NextMove(i >= StrategyMapper.Tables[1]);
             CreateGenes();
         }
 

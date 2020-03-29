@@ -18,7 +18,7 @@ namespace Runner
             var fitness = new BlackjackFitness(Global.Games);
             var selection = new TournamentSelection();
             var crossover = new UniformCrossover(Global.Crossover);
-            var mutation = new UniformMutation();
+            var mutation = new UniformMutation(true);
             var termination = new GenerationNumberTermination(Global.MaxGenerations);
 
             var ga = new GeneticAlgorithm(

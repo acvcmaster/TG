@@ -21,9 +21,9 @@ namespace Util
             return min + (max - min) * random.Value.NextDouble();
         }
 
-        public static BlackjackMove NextMove()
+        public static BlackjackMove NextMove(bool includeSplit)
         {
-            return (BlackjackMove)Next(4);
+            return (BlackjackMove)Next(includeSplit ? 4 : 3);
         }
     }
 }
