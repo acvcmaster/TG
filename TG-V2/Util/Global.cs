@@ -6,13 +6,13 @@ namespace Util
     {
         public const int Population = 250;
         public const int Games = 100000;
-        public const float Crossover = 0.5f;
+        public const float Crossover = 1f; // não mudar
         public const int MaxGenerations = 200;
         public const float Mutation = 0.15f;
         public const int Parallelism = 16;
         public const int NNInputLayer = 5;
         public const int NNOutputLayer = 4;
-        public static readonly int[] NNHiddenLayers = new int[] { 10, 10 };
+        public static readonly int[] NNHiddenLayers = new int[] { 6, 6 };
         public static readonly bool[] NNBiases = new bool[] { false, false, false }; // TODO: Ainda não implementado
         public const double GeneticRangeLow = -100;
         public const double GeneticRangeHigh = 100;
