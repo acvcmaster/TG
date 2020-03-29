@@ -1,25 +1,25 @@
 ﻿using GeneticSharp.Domain;
 using GeneticSharp.Domain.Mutations;
-using GeneticSharp.Domain.Chromosomes;
 using GeneticSharp.Domain.Crossovers;
 using GeneticSharp.Domain.Selections;
 using GeneticSharp.Domain.Terminations;
 using GeneticSharp.Domain.Populations;
 using GeneticSharp.Infrastructure.Framework.Threading;
+using Util;
 
 namespace Runner
 {
     public static class BlackjackGA
     {
-        public static GeneticAlgorithm SetupGA(int maxPop, int games, float crossProbability, float mutationProbability, int maxGenerations, int degreeOfParallelism)
+        public static GeneticAlgorithm SetupGA()
         {
             var chromosome = new BlackjackChromosome();
-            var population = new Population(maxPop, maxPop, chromosome);
-            var fitness = new BlackjackFitness(games);
+            var population = new Population(Global.Population, Global.Population, chromosome);
+            var fitness = new BlackjackFitness(Global.Games);
             var selection = new TournamentSelection();
-            var crossover = new UniformCrossover(crossProbability);
+            var crossover = new UniformCrossover(Global.Crossover);
             var mutation = new UniformMutation();
-            var termination = new GenerationNumberTermination(maxGenerations);
+            var termination = new GenerationNumberTermination(Global.MaxGenerations);
 
             var ga = new GeneticAlgorithm(
                 population,
@@ -28,9 +28,9 @@ namespace Runner
                 crossover,
                 mutation);
 
-            ga.MutationProbability = mutationProbability;
+            ga.MutationProbability = Global.Mutation;
             ga.Termination = termination;
-            ga.TaskExecutor = new ParallelTaskExecutor() { MinThreads = degreeOfParallelism, MaxThreads = degreeOfParallelism };
+            ga.TaskExecutor = new ParallelTaskExecutor() { MinThreads = Global.Parallelism, MaxThreads = Global.Parallelism };
             return ga;
         }
     }

@@ -2,7 +2,6 @@
 using GeneticSharp.Domain.Fitnesses;
 using SM;
 using Util;
-using Util.Models;
 
 namespace Runner
 {
@@ -22,9 +21,7 @@ namespace Runner
             double fitness = 0;
             for (int i = 0; i < Games; i++)
             {
-                Blackjack game = new Blackjack(RandomDecks.PickRandom(), (info) => {
-                    return BlackjackMove.Stand;
-                });
+                Blackjack game = new Blackjack(RandomDecks.PickRandom(), (info) => StrategyMapper.GetMove(info, moves));
                 fitness += game.Play();
             }
             return fitness;
