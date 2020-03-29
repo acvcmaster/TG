@@ -1,10 +1,7 @@
 ﻿using System;
-using SM;
 using GeneticSharp.Domain;
 using System.Diagnostics;
-using GeneticSharp.Domain.Chromosomes;
 using Util;
-using System.Linq;
 
 namespace Runner
 {
@@ -22,15 +19,13 @@ namespace Runner
                 timer.Stop();
                 var millis = timer.ElapsedMilliseconds;
                 var algorithm = gen as GeneticAlgorithm;
-                var best = algorithm.BestChromosome as FloatingPointChromosome;
-                var values = best.ToFloatingPoints();
+                var best = algorithm.BestChromosome as BlackjackChromosome;
                 Console.WriteLine($"Generation {algorithm.GenerationsNumber} ended (took {millis} ms)!");
                 Console.WriteLine($"Best fitness = {best.Fitness}");
-                Console.WriteLine($"Best chromosome = ({values.Print()})");
                 Console.Write("Generating diagram.. ");
-                var diagram = Diagrammer.Generate(values);
-                Diagrammer.Save(diagram, $"Diagrams/Generation_{algorithm.GenerationsNumber}.png");
-                Console.WriteLine($"Done (saved to 'Diagrams/Generation_{algorithm.GenerationsNumber}.png').");
+                var diagram = Diagrammer.Generate(best);
+                Console.WriteLine("Done.");
+                Diagrammer.Save(diagram, $"Diagrams/{algorithm.GenerationsNumber}.png");
                 timer.Reset();
                 timer.Start();
             };

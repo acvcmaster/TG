@@ -17,14 +17,13 @@ namespace Runner
 
         public double Evaluate(IChromosome chromosome)
         {
-            var values = (chromosome as FloatingPointChromosome).ToFloatingPoints();
+            var moves = (chromosome as BlackjackChromosome).Moves;
 
             double fitness = 0;
             for (int i = 0; i < Games; i++)
             {
                 Blackjack game = new Blackjack(RandomDecks.PickRandom(), (info) => {
-                    StaticNN.SetWeights(values);
-                    return StaticNN.Compute(info);
+                    return BlackjackMove.Stand;
                 });
                 fitness += game.Play();
             }

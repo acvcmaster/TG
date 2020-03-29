@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Util.Models;
 
 namespace Util
 {
@@ -18,6 +19,11 @@ namespace Util
         public static double NextDouble(double min, double max)
         {
             return min + (max - min) * random.Value.NextDouble();
+        }
+
+        public static BlackjackMove NextMove()
+        {
+            return (BlackjackMove)Next(4);
         }
     }
 }
