@@ -1,4 +1,7 @@
-﻿namespace Util
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Util
 {
     public static class Extensions
     {
@@ -32,6 +35,17 @@
                     result += " ";
             }
             return result;
+        }
+
+        /// <summary>
+        /// Creates a deep copy of the array.
+        /// </summary>
+        /// <param name="array">The array</param>
+        /// <typeparam name="T">The array type</typeparam>
+        /// <returns>A new array that is a carbon copy of the previous.</returns>
+        public static T[] Clone<T>(this T[] array)
+        {
+            return new List<T>(array).ToArray();
         }
     }
 }
