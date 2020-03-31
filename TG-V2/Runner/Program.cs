@@ -25,10 +25,11 @@ namespace Runner
                 Console.WriteLine($"Best fitness = {best.Fitness}");
                 Console.Write($"Generating diagram for generation {algorithm.GenerationsNumber}.. ");
                 Console.WriteLine("Done.");
-                var diagram = Diagrammer.Generate(best);
+                var diagram = Diagrammer.Generate(best, algorithm);
                 Diagrammer.Save(diagram, algorithm.GenerationsNumber, date);
                 timer.Reset();
                 timer.Start();
+                // RandomDecks.GenerateRandomDecks();
             };
             Console.WriteLine("Algorithm started.");
             timer.Start();

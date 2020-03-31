@@ -21,7 +21,7 @@ namespace Runner
                 a.ReplaceGene(i, new Gene(gene));
             }
 
-            var diagram = Diagrammer.Generate(a);
+            var diagram = Diagrammer.Generate(a, null);
             Diagrammer.Save(diagram, 0, guid);
         }
     }

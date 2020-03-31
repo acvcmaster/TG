@@ -38,7 +38,7 @@ namespace Runner
 
             int result = startIndex + (10 * verticalIndex + dealerCardIndex);
 
-            if (result >= endIndex)
+            if (result >= endIndex || result < startIndex)
                 throw new InvalidOperationException();
 
             return result;

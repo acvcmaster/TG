@@ -1,7 +1,10 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text;
+using GeneticSharp.Domain;
+using Util;
 using Util.Models;
 
 namespace Runner
@@ -9,7 +12,7 @@ namespace Runner
     public class Diagrammer
     {
         public delegate string LabelFunction(int rowIndex);
-        public static string Generate(BlackjackChromosome chromosome)
+        public static string Generate(BlackjackChromosome chromosome, GeneticAlgorithm algorithm)
         {
             StringBuilder html = null;
             using (StreamReader reader = new StreamReader(Path.Combine("Templates", "Diagram.html")))
@@ -23,6 +26,16 @@ namespace Runner
 
                 var pairs = GeneratePairs(chromosome);
                 html.Replace("#pairs#", pairs);
+
+                // Propriedades
+                html.Replace("#population#", Global.Population.ToString("N0", Global.Culture));
+                html.Replace("#games#", Global.Games.ToString("N0", Global.Culture));
+                html.Replace("#mutation_rate#", Global.Mutation.ToString("P", Global.Culture));
+
+                html.Replace("#current_generation#", algorithm.GenerationsNumber.ToString("N0", Global.Culture));
+                html.Replace("#current_fitness#", ((int)algorithm.BestChromosome.Fitness).ToString("N0", Global.Culture));
+                html.Replace("#best_fitness#", 0.ToString("N0", Global.Culture));
+                html.Replace("#best_fitness_generation#", 0.ToString("N0", Global.Culture));
             }
 
             return html.ToString();
