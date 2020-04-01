@@ -12,8 +12,9 @@ namespace Runner
     public class Diagrammer
     {
         public delegate string LabelFunction(int rowIndex);
-        public static string Generate(BlackjackChromosome chromosome, GeneticAlgorithm algorithm)
+        public static string Generate(BlackjackChromosome chromosome, GeneticAlgorithm algorithm, double? bestFitness, int bestFitnessGeneration)
         {
+            bestFitness = bestFitness.HasValue ? bestFitness.Value : double.NaN;
             StringBuilder html = null;
             using (StreamReader reader = new StreamReader(Path.Combine("Templates", "Diagram.html")))
             {
@@ -34,8 +35,8 @@ namespace Runner
 
                 html.Replace("#current_generation#", algorithm.GenerationsNumber.ToString("N0", Global.Culture));
                 html.Replace("#current_fitness#", ((int)algorithm.BestChromosome.Fitness).ToString("N0", Global.Culture));
-                html.Replace("#best_fitness#", 0.ToString("N0", Global.Culture));
-                html.Replace("#best_fitness_generation#", 0.ToString("N0", Global.Culture));
+                html.Replace("#best_fitness#", bestFitness.Value.ToString("N0", Global.Culture));
+                html.Replace("#best_fitness_generation#", bestFitnessGeneration.ToString("N0", Global.Culture));
             }
 
             return html.ToString();
@@ -101,9 +102,15 @@ namespace Runner
             if (!Directory.Exists(Path.Combine("Diagrams", guid, "Images")))
                 Directory.CreateDirectory(Path.Combine("Diagrams", guid, "Images"));
 
+            if (!Directory.Exists(Path.Combine("Diagrams", guid, "GIF")))
+                Directory.CreateDirectory(Path.Combine("Diagrams", guid, "GIF"));
+
+
 
             var html = Path.Combine("Diagrams", guid, "HTML", $"{generation}.html");
             var image = Path.Combine("Diagrams", guid, "Images", $"{generation}.png");
+            var images = Path.Combine("Diagrams", guid, "Images", "%01d.png");
+            var gif = Path.Combine("Diagrams", guid, "GIF", $"{guid}.gif");
 
             using (StreamWriter writer = new StreamWriter(html))
                 writer.Write(diagram);
@@ -113,10 +120,13 @@ namespace Runner
 
             html = Path.Combine(Environment.CurrentDirectory, html);
             image = Path.Combine(Environment.CurrentDirectory, image);
+            images = Path.Combine(Environment.CurrentDirectory, images);
+            gif = Path.Combine(Environment.CurrentDirectory, gif);
 
+            Console.Write("image.. ");
             if (File.Exists(html)) // usar chrome para tirar um print (precisa do chrome no PATH)
             {
-                var process = new Process
+                var chrome = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -128,9 +138,25 @@ namespace Runner
                         CreateNoWindow = true
                     }
                 };
-                process.Start();
-                process.WaitForExit();
+                chrome.Start();
+                chrome.WaitForExit();
             }
+
+            Console.Write("gif.. ");
+            var ffmpeg = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "ffmpeg",
+                    Arguments = $"-y -r 3 -i \"{images}\" -f gif \"{gif}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false,
+                    CreateNoWindow = true
+                }
+            };
+            ffmpeg.Start();
+            ffmpeg.WaitForExit();
         }
     }
 }
