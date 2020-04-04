@@ -15,6 +15,8 @@ namespace Runner
         public static string Generate(BlackjackChromosome chromosome, GeneticAlgorithm algorithm, double? bestFitness, int bestFitnessGeneration)
         {
             bestFitness = bestFitness.HasValue ? bestFitness.Value : double.NaN;
+            var generation = algorithm != null ? algorithm.GenerationsNumber : 0;
+            var fitness = algorithm != null ? algorithm.BestChromosome.Fitness.Value : 0;
             StringBuilder html = null;
             using (StreamReader reader = new StreamReader(Path.Combine("Templates", "Diagram.html")))
             {
@@ -33,8 +35,8 @@ namespace Runner
                 html.Replace("#games#", Global.Games.ToString("N0", Global.Culture));
                 html.Replace("#mutation_rate#", Global.Mutation.ToString("P", Global.Culture));
 
-                html.Replace("#current_generation#", algorithm.GenerationsNumber.ToString("N0", Global.Culture));
-                html.Replace("#current_fitness#", ((int)algorithm.BestChromosome.Fitness).ToString("N0", Global.Culture));
+                html.Replace("#current_generation#", generation.ToString("N0", Global.Culture));
+                html.Replace("#current_fitness#", fitness.ToString("N0", Global.Culture));
                 html.Replace("#best_fitness#", bestFitness.Value.ToString("N0", Global.Culture));
                 html.Replace("#best_fitness_generation#", bestFitnessGeneration.ToString("N0", Global.Culture));
             }

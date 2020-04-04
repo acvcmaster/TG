@@ -1,28 +1,102 @@
 using System;
-using GeneticSharp.Domain.Chromosomes;
+using System.Linq;
+using System.Threading.Tasks;
+using Util;
 using Util.Models;
 
 namespace Runner
 {
     public partial class Program
     {
-        static void TestChromosomes()
+        static void TestBaselineStrategy()
         {
-            string guid = Guid.NewGuid().ToString();
-            var a = new BlackjackChromosome();
-            for (int i = 0; i < 340; i++)
+            Console.WriteLine("Testing optimal stategy.");
+            var guid = GuidProvider.NewGuid(false);
+            Console.Write("Generating decks.. ");
+            RandomDecks.GenerateRandomDecks();
+            Console.WriteLine("Done.");
+
+            var HardHands = new ConcactableArray<char>()
             {
-                var gene = BlackjackMove.Hit;
-                if (i == 0)
-                    gene = BlackjackMove.Stand;
-                else if (i == 339)
-                    gene = BlackjackMove.Stand;
+                'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S',
+                'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S',
+                'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S',
+                'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S',
+                'S', 'S', 'S', 'S', 'S', 'H', 'H', 'H', 'H', 'H',
+                'S', 'S', 'S', 'S', 'S', 'H', 'H', 'H', 'H', 'H',
+                'S', 'S', 'S', 'S', 'S', 'H', 'H', 'H', 'H', 'H',
+                'S', 'S', 'S', 'S', 'S', 'H', 'H', 'H', 'H', 'H',
+                'H', 'H', 'S', 'S', 'S', 'H', 'H', 'H', 'H', 'H',
+                'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D',
+                'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'H', 'H',
+                'H', 'D', 'D', 'D', 'D', 'H', 'H', 'H', 'H', 'H',
+                'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H',
+                'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H',
+                'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H',
+                'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H'
+            };
 
-                a.ReplaceGene(i, new Gene(gene));
-            }
+            var softHands = new ConcactableArray<char>()
+            {
+                'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S',
+                'S', 'S', 'S', 'S', 'D', 'S', 'S', 'S', 'S', 'S',
+                'D', 'D', 'D', 'D', 'D', 'S', 'S', 'H', 'H', 'H',
+                'H', 'D', 'D', 'D', 'D', 'H', 'H', 'H', 'H', 'H',
+                'H', 'H', 'D', 'D', 'D', 'H', 'H', 'H', 'H', 'H',
+                'H', 'H', 'D', 'D', 'D', 'H', 'H', 'H', 'H', 'H',
+                'H', 'H', 'H', 'D', 'D', 'H', 'H', 'H', 'H', 'H',
+                'H', 'H', 'H', 'D', 'D', 'H', 'H', 'H', 'H', 'H'
+            };
 
-            var diagram = Diagrammer.Generate(a, null, null, -1);
+            var pairs = new ConcactableArray<char>()
+            {
+                'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P',
+                'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S',
+                'P', 'P', 'P', 'P', 'P', 'S', 'P', 'P', 'S', 'S',
+                'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P',
+                'P', 'P', 'P', 'P', 'P', 'P', 'H', 'H', 'H', 'H',
+                'P', 'P', 'P', 'P', 'P', 'H', 'H', 'H', 'H', 'H',
+                'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'H', 'H',
+                'H', 'H', 'H', 'P', 'P', 'H', 'H', 'H', 'H', 'H',
+                'P', 'P', 'P', 'P', 'P', 'P', 'H', 'H', 'H', 'H',
+                'P', 'P', 'P', 'P', 'P', 'P', 'H', 'H', 'H', 'H'
+            };
+
+            var tables = new ConcactableArray<char> { HardHands, softHands, pairs };
+            var paragonChromosome = new BlackjackChromosome(tables.Select(item =>
+            {
+                switch (item)
+                {
+                    case 'S':
+                        return BlackjackMove.Stand;
+                    case 'H':
+                        return BlackjackMove.Hit;
+                    case 'D':
+                        return BlackjackMove.DoubleDown;
+                    case 'P':
+                        return BlackjackMove.Split;
+                }
+                return BlackjackMove.Stand;
+            }).ToArray());
+
+            Console.Write("Evaluating fitness.. ");
+            object lockObj = new object();
+            double fitness = 0;
+            Parallel.For(0, 16, i =>
+            {
+                BlackjackFitness fitnessCalculator = new BlackjackFitness();
+                double f = fitnessCalculator.Evaluate(paragonChromosome);
+                lock (lockObj)
+                    fitness += f;
+            });
+            fitness /= 16;
+            Console.WriteLine("Done.");
+
+            Console.Write("Generating diagram.. ");
+            var diagram = Diagrammer.Generate(paragonChromosome, null, fitness, 0);
             Diagrammer.Save(diagram, 0, guid);
+            Console.WriteLine("Done.");
+
         }
     }
 }

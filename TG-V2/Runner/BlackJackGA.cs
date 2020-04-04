@@ -15,7 +15,7 @@ namespace Runner
         {
             var chromosome = new BlackjackChromosome();
             var population = new Population(Global.Population, Global.Population, chromosome);
-            var fitness = new BlackjackFitness(Global.Games);
+            var fitness = new BlackjackFitness();
             var selection = new TournamentSelection();
             var crossover = new UniformCrossover(Global.Crossover);
             var mutation = new UniformMutation(true);
