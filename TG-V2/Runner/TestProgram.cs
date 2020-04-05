@@ -80,23 +80,14 @@ namespace Runner
             }).ToArray());
 
             Console.Write("Evaluating fitness.. ");
-            object lockObj = new object();
-            double fitness = 0;
-            Parallel.For(0, 16, i =>
-            {
-                BlackjackFitness fitnessCalculator = new BlackjackFitness();
-                double f = fitnessCalculator.Evaluate(paragonChromosome);
-                lock (lockObj)
-                    fitness += f;
-            });
-            fitness /= 16;
+            BlackjackFitness fitnessCalculator = new BlackjackFitness();
+            double fitness = fitnessCalculator.Evaluate(paragonChromosome);
             Console.WriteLine("Done.");
 
             Console.Write("Generating diagram.. ");
             var diagram = Diagrammer.Generate(paragonChromosome, null, fitness, 0);
             Diagrammer.Save(diagram, 0, guid);
             Console.WriteLine("Done.");
-
         }
     }
 }

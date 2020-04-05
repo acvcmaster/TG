@@ -37,7 +37,6 @@ namespace Runner
                 Console.WriteLine("Done.");
                 timer.Reset();
                 timer.Start();
-                // RandomDecks.GenerateRandomDecks();
             };
             Console.WriteLine("Algorithm started.");
             timer.Start();

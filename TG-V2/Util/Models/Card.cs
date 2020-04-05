@@ -25,7 +25,7 @@
         King
     }
 
-    public class Card
+    public struct Card
     {
         public FaceValue FaceValue { get; set; }
         public Suit Suit { get; set; }

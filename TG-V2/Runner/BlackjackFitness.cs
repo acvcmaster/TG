@@ -17,7 +17,7 @@ namespace Runner
                 Blackjack game = new Blackjack(RandomDecks.PickRandom(), (info) => StrategyMapper.GetMove(info, moves));
                 fitness += game.Play();
             }
-            return fitness;
+            return fitness / Global.Games;
         }
     }
 }

@@ -36,8 +36,8 @@ namespace Runner
                 html.Replace("#mutation_rate#", Global.Mutation.ToString("P", Global.Culture));
 
                 html.Replace("#current_generation#", generation.ToString("N0", Global.Culture));
-                html.Replace("#current_fitness#", fitness.ToString("N0", Global.Culture));
-                html.Replace("#best_fitness#", bestFitness.Value.ToString("N0", Global.Culture));
+                html.Replace("#current_fitness#", fitness.ToString("N5", Global.Culture));
+                html.Replace("#best_fitness#", bestFitness.Value.ToString("N5", Global.Culture));
                 html.Replace("#best_fitness_generation#", bestFitnessGeneration.ToString("N0", Global.Culture));
             }
 

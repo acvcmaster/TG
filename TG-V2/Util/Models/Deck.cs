@@ -1,10 +1,7 @@
-using System;
-
 namespace Util.Models
 {
-    public class Deck
+    public struct Deck
     {
-        private Random rng = new Random();
         public Card[] Cards { get; set; } // 4 decks of 52 cards
         public Deck(int numDecks = 4)
         {
