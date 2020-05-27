@@ -23,12 +23,6 @@ https://github.com/jeffheaton/encog-dotnet-core // Biblioteca NN
 
 Algoritmo genético :
 
-Condições para jogar
-
-Rede neural feedforward aonde os genes são os pesos<br/>
-Decidir quantos/ comparar hidden layers<br/>
-Funciona por causa do teorema universal da aproximação (citar na monografia)<br/>
-
 ```
 START
 Generate the initial population
@@ -47,5 +41,6 @@ Regras blackjack:
 - Using 4 decks of cards shuffled together
 - Dealer is required to hit until they have 17 (soft or hard)
 - You can double down on a hand that you split
+- Não há limite de split
 - There is no insurance
 - Blackjack pays 3:2
