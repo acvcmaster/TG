@@ -19,6 +19,8 @@ http://jogosdecartas.hut.com.br/vinte-e-um/?fbclid=IwAR16Q93GgQajpVb8mCW3J8l0Yrl
 https://github.com/giacomelli/GeneticSharp/issues/11 //Problema de fitness em grupo
 
 https://github.com/jeffheaton/encog-dotnet-core // Biblioteca NN
+
+https://wizardofodds.com/games/blackjack/calculator // Calculadora de vantagem da casa
 ```
 
 Algoritmo genético :
