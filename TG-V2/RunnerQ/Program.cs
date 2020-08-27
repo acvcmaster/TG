@@ -8,7 +8,7 @@ namespace RunnerQ
 {
     class Program
     {
-        static double[,,,] Q = new double[3, 10, 17, 4];
+        static double[,,,] Q = new double[3, 10, 16, 4];
 
         static void Main(string[] args)
         {
@@ -24,6 +24,9 @@ namespace RunnerQ
                 var deck = RandomDecks.Pick(episode);
                 Blackjack game = new Blackjack(deck, (info) =>
                 {
+                    if (info.PlayerSum == 21)
+                        return BlackjackMove.Stand;
+
                     var table = GetTable(info);
                     var possibleMoves = PossibleMoves(table);
                     var dealerCard = info.DealerFaceupCard.BlackjackValue != 1 ? info.DealerFaceupCard.BlackjackValue - 2 : 9;
@@ -35,7 +38,7 @@ namespace RunnerQ
                     switch (table)
                     {
                         case 0:
-                            sum = 21 - info.PlayerSum;
+                            sum = 20 - info.PlayerSum;
                             break;
                         case 1:
                             sum = 9 - (info.PlayerHand[0].FaceValue == FaceValue.Ace ? info.PlayerHand[1].BlackjackValue : info.PlayerHand[0].BlackjackValue);
