@@ -3,6 +3,7 @@ using System.Linq;
 using SM;
 using Util;
 using Util.Models;
+using Runner;
 
 namespace RunnerQ
 {
@@ -12,10 +13,11 @@ namespace RunnerQ
 
         static void Main(string[] args)
         {
-            double learningRate = 0.5;
-            double discountFactor = 0.5;
-            double explorationFactor = 1; // tem que cair durante o aprendizado
-            int maxEpisodes = 50000;
+            Console.WriteLine("Q-Learning: Started.");
+            double learningRate = 0.7;
+            double discountFactor = 0.1;
+            double explorationFactor = 0.3; // tem que cair durante o aprendizado
+            int maxEpisodes = 200000;
 
             RandomDecks.GenerateRandomDecks(maxEpisodes);
 
@@ -69,7 +71,22 @@ namespace RunnerQ
 
                 game.Play();
             }
-            Console.WriteLine("Done!");
+
+            Console.WriteLine("Q-Learning: Done.");
+
+            var moves = GetMoves();
+
+            var guid = GuidProvider.NewGuid();
+            BlackjackChromosome qChromosome = new BlackjackChromosome(moves);
+            Console.Write("Evaluating fitness.. ");
+            BlackjackFitness fitnessCalculator = new BlackjackFitness();
+            double fitness = fitnessCalculator.Evaluate(qChromosome);
+            Console.WriteLine("Done.");
+
+            Console.Write("Generating diagram.. ");
+            var diagram = Diagrammer.Generate(qChromosome, null, fitness, 0);
+            Diagrammer.Save(diagram, 0, guid);
+            Console.WriteLine("Done.");
         }
 
         static BlackjackMove[] PossibleMoves(int table)
@@ -92,6 +109,31 @@ namespace RunnerQ
                     return 1;
             }
             return 0;
+        }
+
+        static BlackjackMove[] GetMoves()
+        {
+            ConcactableArray<BlackjackMove> moves = new ConcactableArray<BlackjackMove>();
+            for (int table = 0; table < 3; table++)
+                for (int sum = 0; sum < 16; sum++)
+                    for (int dealerCard = 0; dealerCard < 10; dealerCard++)
+                    {
+                        int maxMove = -1;
+                        double maxValue = double.NegativeInfinity;
+
+                        for (int move = 0; move < 4; move++)
+                        {
+                            var value = Q[table, dealerCard, sum, move];
+                            if (value > maxValue)
+                            {
+                                maxMove = move;
+                                maxValue = value;
+                            }
+                        }
+
+                        moves.Add((BlackjackMove)maxMove);
+                    }
+            return moves.ToArray();
         }
     }
 }
