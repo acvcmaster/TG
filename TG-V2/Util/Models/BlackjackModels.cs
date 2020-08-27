@@ -10,9 +10,11 @@ namespace Util.Models
         {
             get { return BlackjackStatic.GetSum(PlayerHand, PlayerHandIndex); }
         }
+        public object Game { get; }
 
-        public BlackjackInformation(Card DealerFaceupCard, Card[] PlayerHand, int PlayerHandIndex, bool IsSplit)
+        public BlackjackInformation(object Game, Card DealerFaceupCard, Card[] PlayerHand, int PlayerHandIndex, bool IsSplit)
         {
+            this.Game = Game;
             this.DealerFaceupCard = DealerFaceupCard;
             this.PlayerHand = PlayerHand;
             this.PlayerHandIndex = PlayerHandIndex;

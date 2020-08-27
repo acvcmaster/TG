@@ -22,5 +22,10 @@ namespace Util
             int index = StaticRandom.Next(Count);
             return randomDecks[index];
         }
+
+        public static Deck Pick(int index)
+        {
+            return randomDecks[index];
+        }
     }
 }

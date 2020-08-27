@@ -25,5 +25,11 @@ namespace Util
         {
             return (BlackjackMove)Next(includeSplit ? 4 : 3);
         }
+
+        public static T RandomElement<T>(this T[] @array)
+        {
+            var index = Next(@array.Length);
+            return @array[index];
+        }
     }
 }

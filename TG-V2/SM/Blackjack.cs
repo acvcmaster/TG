@@ -11,7 +11,7 @@ namespace SM
         public Card[] PlayerHand = new Card[21];
         public Card[] PlayerSecondHand = new Card[21];
         public Card[] DealerHand = new Card[21];
-        private int deckIndex = 0;
+        private int DeckIndex = 0;
         public int PlayerHandIndex = 0;
         public int DealerHandIndex = 0;
         public Blackjack(Deck deck, BlackjackStrategy strategy)
@@ -131,19 +131,76 @@ namespace SM
 
         private BlackjackMove GetPlayerMove(Card[] PlayerHand, int PlayerHandIndex, bool IsSplit = false)
         {
-            var move = CurrentStrategy(new BlackjackInformation(this.DealerFaceupCard, PlayerHand, PlayerHandIndex, IsSplit));
+            var move = CurrentStrategy(new BlackjackInformation(this, this.DealerFaceupCard, PlayerHand, PlayerHandIndex, IsSplit));
             return move;
         }
 
         private void Transition(ref GameState state, GameState next) { state = next; }
         private void GiveCard(Card[] hand, ref int index, bool dealerFaceup = false)
         {
-            var card = Deck.Cards[deckIndex];
+            var card = Deck.Cards[DeckIndex];
             hand[index] = card;
             if (dealerFaceup)
                 this.DealerFaceupCard = card;
-            deckIndex++;
+            DeckIndex++;
             index++;
+        }
+
+        public float Lookahead(BlackjackMove move)
+        {
+            switch (move)
+            {
+                case BlackjackMove.Hit:
+                    {
+                        var playerHand = PlayerHand.Clone<Card>();
+                        playerHand[PlayerHandIndex] = Deck.Cards[DeckIndex];
+                        return BlackjackStatic.GetSum(playerHand, PlayerHandIndex + 1) > 21 ? -1 : 0;
+                    }
+                case BlackjackMove.Stand:
+                    return LookaheadStand(1, move);
+                case BlackjackMove.DoubleDown:
+                    return LookaheadStand(2, move);
+                case BlackjackMove.Split:
+                    {
+                        float profit = -1;
+
+                        var playerHand1 = new Card[21];
+                        var playerHand2 = new Card[21];
+
+                        playerHand1[0] = PlayerHand[0];
+                        playerHand1[1] = Deck.Cards[DeckIndex];
+
+                        playerHand2[0] = PlayerHand[1];
+                        playerHand2[1] = Deck.Cards[DeckIndex + 1];
+
+                        profit += BlackjackStatic.CheckBlackjack(playerHand1) ? 1.5f : 0;
+                        profit += BlackjackStatic.CheckBlackjack(playerHand2) ? 1.5f : 0;
+
+                        return profit;
+                    }
+            }
+            return 0;
+        }
+
+        public float LookaheadStand(float profit, BlackjackMove move)
+        {
+            var dealerHand = DealerHand.Clone<Card>();
+            var dealerHandIndex = DealerHandIndex;
+            var deckIndex = DeckIndex;
+
+            while (BlackjackStatic.GetSum(dealerHand, dealerHandIndex) < 17) // Dealer stands on soft 17
+            {
+                dealerHand[dealerHandIndex] = Deck.Cards[deckIndex];
+                dealerHandIndex++;
+                deckIndex++;
+            }
+
+            int playerSum = BlackjackStatic.GetSum(PlayerHand, PlayerHandIndex);
+            int dealerSum = BlackjackStatic.GetSum(dealerHand, dealerHandIndex);
+
+            if (playerSum > 21 || BlackjackStatic.CheckBlackjack(dealerHand) || (playerSum < dealerSum && dealerSum <= 21)) { return -profit; }
+            else if (playerSum == dealerSum) { return 0; }
+            else return profit;
         }
     }
 }
