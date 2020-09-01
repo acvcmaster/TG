@@ -29,42 +29,21 @@ namespace RunnerQ
                     if (info.PlayerSum == 21)
                         return BlackjackMove.Stand;
 
-                    var table = GetTable(info);
-                    var possibleMoves = PossibleMoves(table);
-                    var dealerCard = info.DealerFaceupCard.BlackjackValue != 1 ? info.DealerFaceupCard.BlackjackValue - 2 : 9;
-                    var sum = 0;
+                    int table, dealerCard, sum;
+                    BlackjackMove result = BlackjackMove.Hit;
 
-                    var result = BlackjackMove.Hit;
-                    var maxQ = double.NegativeInfinity;
-
-                    switch (table)
-                    {
-                        case 0:
-                            sum = 20 - info.PlayerSum;
-                            break;
-                        case 1:
-                            sum = 9 - (info.PlayerHand[0].FaceValue == FaceValue.Ace ? info.PlayerHand[1].BlackjackValue : info.PlayerHand[0].BlackjackValue);
-                            break;
-                        case 2:
-                            sum = info.PlayerHand[0].FaceValue != FaceValue.Ace ? 11 - info.PlayerHand[0].BlackjackValue : 0;
-                            break;
-                    }
-
-                    foreach (var move in possibleMoves)
-                    {
-                        var q = Q[table, dealerCard, sum, (int)move];
-                        if (q > maxQ)
-                        {
-                            maxQ = q;
-                            result = move;
-                        }
-                    }
+                    GetIndexes(info, out table, out dealerCard, out sum);
+                    BlackjackMove[] possibleMoves = PossibleMoves(table);
 
                     if (StaticRandom.NextDouble(0, 1) < explorationFactor)
                         result = possibleMoves.RandomElement();
+                    else
+                        result = possibleMoves.MaxOver(element => Q[table, dealerCard, sum, (int)element]);
 
-                    // lookahead para ver reward (0 se for Hit)
-                    var reward = result == BlackjackMove.Hit ? 0 : (info.Game as Blackjack).Lookahead(result);
+
+                    var reward = (info.Game as Blackjack).Lookahead(result);
+                    // Obter próximo estado (blackjack info, se é final ou não e a reward)
+                    // Se o estado for final maxQ = 0
                     Q[table, dealerCard, sum, (int)result] += learningRate * (reward + discountFactor * maxQ - Q[table, dealerCard, sum, (int)result]);
                     return result;
                 });
@@ -74,10 +53,8 @@ namespace RunnerQ
 
             Console.WriteLine("Q-Learning: Done.");
 
-            var moves = GetMoves();
-
-            var guid = GuidProvider.NewGuid();
-            BlackjackChromosome qChromosome = new BlackjackChromosome(moves);
+            var guid = GuidProvider.NewGuid(false);
+            BlackjackChromosome qChromosome = new BlackjackChromosome(GetPolicy());
             Console.Write("Evaluating fitness.. ");
             BlackjackFitness fitnessCalculator = new BlackjackFitness();
             double fitness = fitnessCalculator.Evaluate(qChromosome);
@@ -87,6 +64,27 @@ namespace RunnerQ
             var diagram = Diagrammer.Generate(qChromosome, null, fitness, 0);
             Diagrammer.Save(diagram, 0, guid);
             Console.WriteLine("Done.");
+        }
+
+        private static void GetIndexes(BlackjackInformation info, out int table, out int dealerCard, out int sum)
+        {
+            table = GetTable(info);
+            dealerCard = info.DealerFaceupCard.BlackjackValue != 1 ? info.DealerFaceupCard.BlackjackValue - 2 : 9;
+            switch (table)
+            {
+                case 0:
+                    sum = 20 - info.PlayerSum;
+                    break;
+                case 1:
+                    sum = 9 - (info.PlayerHand[0].FaceValue == FaceValue.Ace ? info.PlayerHand[1].BlackjackValue : info.PlayerHand[0].BlackjackValue);
+                    break;
+                case 2:
+                    sum = info.PlayerHand[0].FaceValue != FaceValue.Ace ? 11 - info.PlayerHand[0].BlackjackValue : 0;
+                    break;
+                default:
+                    sum = 0;
+                    break;
+            }
         }
 
         static BlackjackMove[] PossibleMoves(int table)
@@ -111,27 +109,16 @@ namespace RunnerQ
             return 0;
         }
 
-        static BlackjackMove[] GetMoves()
+        static BlackjackMove[] GetPolicy()
         {
-            ConcactableArray<BlackjackMove> moves = new ConcactableArray<BlackjackMove>();
+            var moves = new ConcactableArray<BlackjackMove>();
+
             for (int table = 0; table < 3; table++)
                 for (int sum = 0; sum < 16; sum++)
                     for (int dealerCard = 0; dealerCard < 10; dealerCard++)
                     {
-                        int maxMove = -1;
-                        double maxValue = double.NegativeInfinity;
-
-                        for (int move = 0; move < 4; move++)
-                        {
-                            var value = Q[table, dealerCard, sum, move];
-                            if (value > maxValue)
-                            {
-                                maxMove = move;
-                                maxValue = value;
-                            }
-                        }
-
-                        moves.Add((BlackjackMove)maxMove);
+                        var bestMove = PossibleMoves(table).MaxOver(element => Q[table, dealerCard, sum, (int)element]);
+                        moves.Add(bestMove); // default(BlackjackMove) como fallback
                     }
             return moves.ToArray();
         }
