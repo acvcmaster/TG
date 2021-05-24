@@ -72,7 +72,7 @@ namespace TG_V3.Blackjack
             }
         }
 
-        public Game Stand(Deck deck)
+        public Game Stand(Deck deck, bool doubledown = false)
         {
             var game = new Game(this);
 
@@ -82,10 +82,10 @@ namespace TG_V3.Blackjack
                 while (game.DealerHand.Sum < 17)
                     game.DealerHand.Add(deck.Pop());
 
-                game.Reward = 1;
+                game.Reward = !doubledown ? 1 : 2;
 
                 if (game.DealerBlackjack || (game.PlayerHand.Sum < game.DealerHand.Sum && game.DealerHand.Sum <= 21))
-                    game.Reward = -1;
+                    game.Reward = !doubledown ? -1 : -2;
                 else if (game.PlayerHand.Sum == game.DealerHand.Sum)
                     game.Reward = 0;
 
@@ -95,7 +95,7 @@ namespace TG_V3.Blackjack
             return game;
         }
 
-        public Game Hit(Deck deck)
+        public Game Hit(Deck deck, bool doubledown = false)
         {
             var game = new Game(this);
 
@@ -105,7 +105,7 @@ namespace TG_V3.Blackjack
                 if (game.PlayerHand.Sum > 21)
                 {
                     game.Final = true;
-                    game.Reward = -1;
+                    game.Reward = !doubledown ? -1 : -2;
                 }
             }
 
@@ -118,17 +118,8 @@ namespace TG_V3.Blackjack
 
             if (!game.Final)
             {
-                game.PlayerHand.Add(deck.Pop());
-                if (game.PlayerHand.Sum > 21)
-                {
-                    game.Final = true;
-                    game.Reward = -2;
-                }
-                else
-                {
-                    game = game.Stand(deck);
-                    game.Reward *= 2;
-                }
+                game = game.Hit(deck, true);
+                game = game.Stand(deck, true);
             }
 
             return game;
