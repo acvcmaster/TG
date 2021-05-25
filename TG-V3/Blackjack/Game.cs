@@ -47,8 +47,8 @@ namespace TG_V3.Blackjack
                     var first = DealerHand?.CardAt(0);
                     var second = DealerHand?.CardAt(1);
 
-                    return (first?.BlackjackValue == 10 && first?.FaceValue != FaceValue.Ten && second?.FaceValue == FaceValue.Ace)
-                     || (second?.BlackjackValue == 10 && second?.FaceValue != FaceValue.Ten && first?.FaceValue == FaceValue.Ace);
+                    return (first?.BlackjackValue == 10 && second?.FaceValue == FaceValue.Ace)
+                     || (second?.BlackjackValue == 10 && first?.FaceValue == FaceValue.Ace);
                 }
 
                 return false;
@@ -64,13 +64,18 @@ namespace TG_V3.Blackjack
                     var first = PlayerHand?.CardAt(0);
                     var second = PlayerHand?.CardAt(1);
 
-                    return (first?.BlackjackValue == 10 && first?.FaceValue != FaceValue.Ten && second?.FaceValue == FaceValue.Ace)
-                     || (second?.BlackjackValue == 10 && second?.FaceValue != FaceValue.Ten && first?.FaceValue == FaceValue.Ace);
+                    return (first?.BlackjackValue == 10 && second?.FaceValue == FaceValue.Ace)
+                     || (second?.BlackjackValue == 10 && first?.FaceValue == FaceValue.Ace);
                 }
 
                 return false;
             }
         }
+
+        public bool CanSplit => !Final &&
+            PlayerHand?.Count == 2 &&
+            PlayerHand.CardAt(0).Value.FaceValue ==
+            PlayerHand.CardAt(1).Value.FaceValue;
 
         public Game Stand(Deck deck, bool doubledown = false)
         {
@@ -127,6 +132,7 @@ namespace TG_V3.Blackjack
 
         public IEnumerable<Game> Split(Deck deck)
         {
+            // 💡 Predeterminar a mão do dealer ao splitar
             var game = new Game(this);
 
             if (!game.Final)
