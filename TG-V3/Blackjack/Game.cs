@@ -14,7 +14,11 @@ namespace TG_V3.Blackjack
 
             PlayerHand.Add(deck.Pop());
             PlayerHand.Add(deck.Pop());
-            DealerHand.Add(deck.Pop());
+
+            // pre-determining the dealer's hand
+            // dealer buys until soft 17
+            while (DealerHand.Sum < 17)
+                DealerHand.Add(deck.Pop());
 
             if (PlayerBlackjack)
             {
@@ -83,10 +87,6 @@ namespace TG_V3.Blackjack
 
             if (!game.Final)
             {
-                // dealer buys until soft 17
-                while (game.DealerHand.Sum < 17)
-                    game.DealerHand.Add(deck.Pop());
-
                 game.Reward = !doubledown ? 1 : 2;
 
                 if (game.DealerBlackjack || (game.PlayerHand.Sum < game.DealerHand.Sum && game.DealerHand.Sum <= 21))
@@ -107,7 +107,12 @@ namespace TG_V3.Blackjack
             if (!game.Final)
             {
                 game.PlayerHand.Add(deck.Pop());
-                if (game.PlayerHand.Sum > 21)
+
+                if (game.PlayerHand.Sum == 21)
+                {
+                    return game.Stand(deck, doubledown);
+                }
+                else if (game.PlayerHand.Sum > 21)
                 {
                     game.Final = true;
                     game.Reward = !doubledown ? -1 : -2;
