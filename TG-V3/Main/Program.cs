@@ -19,10 +19,10 @@ namespace TG_V3
     {
         static void Main(string[] args)
         {
-            double learningRate = 0.1;
+            double learningRate = 0.6;
             double discountFactor = 0.1;
-            double explorationFactor = 0.15; // tem que cair durante o aprendizado
-            int maxEpisodes = 5000000;
+            double initialExplorationFactor = 1; // tem que cair durante o aprendizado
+            int maxEpisodes = 10000000;
 
             // Moves
             // 0 - Stand
@@ -30,13 +30,14 @@ namespace TG_V3
             // 2 - Doubledown
             // 3 - Split
 
-            double[,,] QHardHands = new double[10, 18, 3]; // dealer card, sum, move
-            double[,,] QSoftHands = new double[10, 8, 3]; // dealer card, Ace-N, move
-            double[,,] QSplit = new double[10, 10, 4]; // dealer card, pair, move
+            double[,,] QHardHands = GlobalRandom.NextTable(10, 17, 3); // dealer card, sum, move
+            double[,,] QSoftHands = GlobalRandom.NextTable(10, 8, 3); // dealer card, Ace-N, move
+            double[,,] QSplit = GlobalRandom.NextTable(10, 10, 4); // dealer card, pair, move
+            var mutex = new Object();
 
             Parallel.For(0, maxEpisodes, (episode =>
             {
-                Deck deck = new Deck(2);
+                Deck deck = new Deck(4);
                 Game game = new Game(deck);
 
                 if (!game.Final)
@@ -51,7 +52,7 @@ namespace TG_V3
                         if (tableType != QLearningTable.Split)
                         {
                             int move = 0;
-                            if (GlobalRandom.NextDouble() < explorationFactor)
+                            if (GlobalRandom.NextDouble() < ExplorationFactor(episode, maxEpisodes, initialExplorationFactor))
                                 move = GlobalRandom.Next(3);
                             else
                             {
@@ -62,8 +63,8 @@ namespace TG_V3
                             game = MakeMove(game, deck, move);
                             var reward = game.Reward;
 
-                            lock (table)
-                                table[x, y, move] += learningRate * (reward + discountFactor * EstimateMax(game, deck) - table[x, y, move]);
+                            lock (mutex)
+                                table[x, y, move] += learningRate * (reward + discountFactor * EstimateMax(QHardHands, QSoftHands, QSplit, game, deck) - table[x, y, move]);
                         }
                         else
                         {
@@ -74,17 +75,23 @@ namespace TG_V3
                 }
             }));
 
-            var policyHardHands = GetOptimalPolicy(QHardHands, 10, 18, new int[] { 0, 1, 2 });
+            var policyHardHands = GetOptimalPolicy(QHardHands, 10, 17, new int[] { 0, 1, 2 });
             var policySoftHands = GetOptimalPolicy(QSoftHands, 10, 8, new int[] { 0, 1, 2 });
 
-            PrintPolicy(policyHardHands, 10, 18);
+            PrintPolicy(policyHardHands, 10, 17);
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine();
-            PrintPolicy(policyHardHands, 10, 8);
+            PrintPolicy(policySoftHands, 10, 8);
 
 
             Console.WriteLine("Done!");
+        }
+
+        private static double ExplorationFactor(int episode, int maxEpisodes, double initialExplorationFactor)
+        {
+            return initialExplorationFactor - episode * initialExplorationFactor / maxEpisodes;
+            // return initialExplorationFactor;
         }
 
         public static double[,,] SelectTable(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, QLearningTable tableType)
@@ -131,9 +138,8 @@ namespace TG_V3
             switch (tableType)
             {
                 case QLearningTable.HardHands:
-                    return 20 - game.PlayerHand.Sum;
                 case QLearningTable.SoftHands:
-                    return 19 - game.PlayerHand.Sum;
+                    return 20 - game.PlayerHand.Sum;
                 case QLearningTable.Split:
                     return (game.PlayerHand.Sum / 2) == 1 ? 0 : (11 - game.PlayerHand.Sum / 2);
             }
@@ -164,23 +170,24 @@ namespace TG_V3
             return MakeMove(game, newDeck, move);
         }
 
-        public static double EstimateMax(Game game, Deck deck)
+        public static double EstimateMax(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, Game game, Deck deck)
         {
-            List<Game> games = new List<Game>();
-
             if (!game.Final)
             {
-                for (int i = 0; i < 3; i++)
-                    games.Add(PeekMove(game, deck, i));
+                var tableType = GetQLearningTable(game);
+                double[,,] table = SelectTable(qHardHands, qSoftHands, qSplit, tableType);
 
-                return games.Select(item => item.Reward).OrderByDescending(item => item).First();
+                int x = GetXIndex(game);
+                int y = GetYIndex(game, tableType);
+
+                var moves = tableType != QLearningTable.Split
+                    ? new int[] { 0, 1, 2 }
+                    : new int[] { 0, 1, 2, 3 };
+                var bestMove = moves.MaxOver(action => table[x, y, action]);
+
+                return table[x, y, bestMove];
             }
 
-            return 0;
-        }
-
-        public static double EstimateMaxSplit()
-        {
             return 0;
         }
 

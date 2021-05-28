@@ -26,7 +26,7 @@ namespace TG_V3.Blackjack
                     var first = CardAt(0).Value;
                     var second = CardAt(1).Value;
 
-                    return 10 + (first.FaceValue == FaceValue.Ace
+                    return 11 + (first.FaceValue == FaceValue.Ace
                         ? second.BlackjackValue
                         : first.BlackjackValue);
                 }
@@ -58,6 +58,12 @@ namespace TG_V3.Blackjack
         public void Add(Card card)
         {
             Cards.Add(card);
+        }
+
+        public void Replace(int index, Card? card)
+        {
+            if (card.HasValue)
+                Cards[index] = card.Value;
         }
     }
 }

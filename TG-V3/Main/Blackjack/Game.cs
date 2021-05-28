@@ -19,12 +19,8 @@ namespace TG_V3.Blackjack
             // dealer buys until soft 17
             while (DealerHand.Sum < 17)
                 DealerHand.Add(deck.Pop());
-
-            if (PlayerBlackjack)
-            {
-                Final = true;
-                Reward = 1.5;
-            }
+            
+            CheckNatural();
         }
 
         // Clones the previous game and returns a new object
@@ -137,15 +133,34 @@ namespace TG_V3.Blackjack
 
         public IEnumerable<Game> Split(Deck deck)
         {
-            // 💡 Predeterminar a mão do dealer ao splitar
-            var game = new Game(this);
-
-            if (!game.Final)
+            if (!Final && CanSplit)
             {
+                var left = new Game(this);
+                var right = new Game(this);
+                
+                right?.PlayerHand?.Replace(0, left?.PlayerHand?.CardAt(1));
 
+                left?.PlayerHand?.Replace(1, deck.Pop());
+                right?.PlayerHand?.Replace(1, deck.Pop());
+
+                left?.CheckNatural();
+                right?.CheckNatural();
+
+
+                yield return left;
+                yield return right;
             }
 
-            return null;
+            yield break;
+        }
+
+        public void CheckNatural()
+        {
+            if (PlayerBlackjack)
+            {
+                Final = true;
+                Reward = 1.5;
+            }
         }
     }
 }
