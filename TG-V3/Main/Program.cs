@@ -19,7 +19,6 @@ namespace TG_V3
     {
         static void Main(string[] args)
         {
-            #error Verificar dealer.
             double learningRate = 0.6;
             double discountFactor = 0.1;
             double explorationFactor = 0.25; // tem que cair durante o aprendizado
