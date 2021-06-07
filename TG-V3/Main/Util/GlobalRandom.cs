@@ -1,10 +1,21 @@
 using System;
+using System.Threading;
 
 namespace TG_V3.Util
 {
     public static class GlobalRandom
     {
-        private static Random InnerRandom { get; set; } = new Random();
+        static int seed = Environment.TickCount;
+        static readonly ThreadLocal<Random> LocalRandom = new ThreadLocal<Random>(() =>
+            new Random(Interlocked.Increment(ref seed)));
+
+        static Random InnerRandom
+        {
+            get
+            {
+                return LocalRandom.Value;
+            }
+        }
 
         public static int Next(int maxValue)
         {
