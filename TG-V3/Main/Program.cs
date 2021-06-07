@@ -19,10 +19,12 @@ namespace TG_V3
     {
         static void Main(string[] args)
         {
-            double learningRate = 0.7;
+            #error Verificar dealer.
+            double learningRate = 0.6;
             double discountFactor = 0.1;
-            double initialExplorationFactor = 0.25; // tem que cair durante o aprendizado
-            int maxEpisodes = 30000000;
+            double explorationFactor = 0.25; // tem que cair durante o aprendizado
+            int batchSize = 10000;
+            int maxBatches = 10000;
 
             // Moves
             // 0 - Stand
@@ -35,41 +37,44 @@ namespace TG_V3
             double[,,] QSplit = GlobalRandom.NextTable(10, 10, 4); // dealer card, pair, move
             var mutex = new Object();
 
-            Parallel.For(0, maxEpisodes, (episode =>
+            Parallel.For(0, maxBatches, (batch =>
             {
-                Deck deck = new Deck(4);
-                Game game = new Game(deck);
-
-                if (!game.Final)
+                for (int episode = 0; episode < batchSize; episode++)
                 {
-                    while (!game.Final)
-                    {
-                        var tableType = GetQLearningTable(game);
-                        double[,,] table = SelectTable(QHardHands, QSoftHands, QSplit, tableType);
-                        int x = GetXIndex(game);
-                        int y = GetYIndex(game, tableType);
+                    Deck deck = new Deck(4);
+                    Game game = new Game(deck);
 
-                        if (tableType != QLearningTable.Split)
+                    if (!game.Final)
+                    {
+                        while (!game.Final)
                         {
-                            int move = 0;
-                            if (GlobalRandom.NextDouble() < ExplorationFactor(episode, maxEpisodes, initialExplorationFactor))
-                                move = GlobalRandom.Next(3);
+                            var tableType = GetQLearningTable(game);
+                            double[,,] table = SelectTable(QHardHands, QSoftHands, QSplit, tableType);
+                            int x = GetXIndex(game);
+                            int y = GetYIndex(game, tableType);
+
+                            if (tableType != QLearningTable.Split)
+                            {
+                                int move = 0;
+                                if (GlobalRandom.NextDouble() < explorationFactor)
+                                    move = GlobalRandom.Next(3);
+                                else
+                                {
+                                    int[] moves = new int[] { 0, 1, 2 };
+                                    move = moves.MaxOver(action => table[x, y, action]);
+                                }
+
+                                game = MakeMove(game, deck, move);
+                                var reward = game.Reward;
+
+                                lock (mutex)
+                                    table[x, y, move] += learningRate * (reward + discountFactor * EstimateMax(QHardHands, QSoftHands, QSplit, game, deck) - table[x, y, move]);
+                            }
                             else
                             {
-                                int[] moves = new int[] { 0, 1, 2 };
-                                move = moves.MaxOver(action => table[x, y, action]);
+                                // ignorar por enquanto
+                                break;
                             }
-
-                            game = MakeMove(game, deck, move);
-                            var reward = game.Reward;
-
-                            lock (mutex)
-                                table[x, y, move] += learningRate * (reward + discountFactor * EstimateMax(QHardHands, QSoftHands, QSplit, game, deck) - table[x, y, move]);
-                        }
-                        else
-                        {
-                            // ignorar por enquanto
-                            break;
                         }
                     }
                 }
@@ -86,12 +91,6 @@ namespace TG_V3
 
 
             Console.WriteLine("Done!");
-        }
-
-        private static double ExplorationFactor(int episode, int maxEpisodes, double initialExplorationFactor)
-        {
-            // return initialExplorationFactor - episode * initialExplorationFactor / maxEpisodes;
-            return initialExplorationFactor;
         }
 
         public static double[,,] SelectTable(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, QLearningTable tableType)
