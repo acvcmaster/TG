@@ -19,10 +19,10 @@ namespace TG_V3
     {
         static void Main(string[] args)
         {
-            double learningRate = 0.6;
+            double learningRate = 0.7;
             double discountFactor = 0.1;
-            double initialExplorationFactor = 1; // tem que cair durante o aprendizado
-            int maxEpisodes = 10000000;
+            double initialExplorationFactor = 0.25; // tem que cair durante o aprendizado
+            int maxEpisodes = 30000000;
 
             // Moves
             // 0 - Stand
@@ -30,7 +30,7 @@ namespace TG_V3
             // 2 - Doubledown
             // 3 - Split
 
-            double[,,] QHardHands = GlobalRandom.NextTable(10, 17, 3); // dealer card, sum, move
+            double[,,] QHardHands = GlobalRandom.NextTable(10, 16, 3); // dealer card, sum, move
             double[,,] QSoftHands = GlobalRandom.NextTable(10, 8, 3); // dealer card, Ace-N, move
             double[,,] QSplit = GlobalRandom.NextTable(10, 10, 4); // dealer card, pair, move
             var mutex = new Object();
@@ -75,10 +75,10 @@ namespace TG_V3
                 }
             }));
 
-            var policyHardHands = GetOptimalPolicy(QHardHands, 10, 17, new int[] { 0, 1, 2 });
+            var policyHardHands = GetOptimalPolicy(QHardHands, 10, 16, new int[] { 0, 1, 2 });
             var policySoftHands = GetOptimalPolicy(QSoftHands, 10, 8, new int[] { 0, 1, 2 });
 
-            PrintPolicy(policyHardHands, 10, 17);
+            PrintPolicy(policyHardHands, 10, 16);
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine();
@@ -90,8 +90,8 @@ namespace TG_V3
 
         private static double ExplorationFactor(int episode, int maxEpisodes, double initialExplorationFactor)
         {
-            return initialExplorationFactor - episode * initialExplorationFactor / maxEpisodes;
-            // return initialExplorationFactor;
+            // return initialExplorationFactor - episode * initialExplorationFactor / maxEpisodes;
+            return initialExplorationFactor;
         }
 
         public static double[,,] SelectTable(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, QLearningTable tableType)

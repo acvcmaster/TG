@@ -21,32 +21,18 @@ namespace TG_V3.Blackjack
         {
             get
             {
-                if (SoftHand)
-                {
-                    var first = CardAt(0).Value;
-                    var second = CardAt(1).Value;
+                var hardSum = Cards.Sum(item => item.BlackjackValue);
 
-                    return 11 + (first.FaceValue == FaceValue.Ace
-                        ? second.BlackjackValue
-                        : first.BlackjackValue);
+                if (Cards.Where(item => item.FaceValue == FaceValue.Ace).Any())
+                {
+                    var softSum = 10 + hardSum;
+                    return softSum > 21 ? hardSum : softSum;
                 }
-                else return Cards.Sum(item => item.BlackjackValue);
+                else return hardSum;
             }
         }
 
-        public bool SoftHand
-        {
-            get
-            {
-                if (Count == 2)
-                {
-                    return CardAt(0)?.FaceValue == FaceValue.Ace ^
-                        CardAt(1)?.FaceValue == FaceValue.Ace;
-                }
-
-                return false;
-            }
-        }
+        public bool SoftHand => Cards.Sum(item => item.BlackjackValue) != Sum;
 
         public int Count => Cards?.Count() ?? 0;
 
