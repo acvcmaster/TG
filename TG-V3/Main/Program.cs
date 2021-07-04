@@ -52,17 +52,20 @@ namespace TG_V3
                             int x = GetXIndex(game);
                             int y = GetYIndex(game, tableType);
 
-                            if (tableType != QLearningTable.Split)
+                            int move = 0;
+                            if (GlobalRandom.NextDouble() < explorationFactor)
+                                move = GlobalRandom.Next(tableType != QLearningTable.Split ? 3 : 4);
+                            else
                             {
-                                int move = 0;
-                                if (GlobalRandom.NextDouble() < explorationFactor)
-                                    move = GlobalRandom.Next(3);
-                                else
-                                {
-                                    int[] moves = new int[] { 0, 1, 2 };
-                                    move = moves.MaxOver(action => table[x, y, action]);
-                                }
+                                int[] moves = tableType != QLearningTable.Split
+                                    ? new int[] { 0, 1, 2 }
+                                    : new int[] { 0, 1, 2, 3 };
+                                move = moves.MaxOver(action => table[x, y, action]);
+                            }
 
+                            if (move != 3)
+                            {
+                                // No split
                                 game = MakeMove(game, deck, move);
                                 var reward = game.Reward;
 
@@ -71,7 +74,12 @@ namespace TG_V3
                             }
                             else
                             {
-                                // ignorar por enquanto
+                                // Calculate split and break
+                                var games = Split(game, deck);
+                                var splitReward = games.Select(item => item.Reward).Average(); // Média ou soma?
+
+                                lock (mutex)
+                                    table[x, y, move] += learningRate * (splitReward + discountFactor * EstimateMaxOnSplit(QHardHands, QSoftHands, QSplit, games, deck) - table[x, y, move]);
                                 break;
                             }
                         }
@@ -81,12 +89,17 @@ namespace TG_V3
 
             var policyHardHands = GetOptimalPolicy(QHardHands, 10, 16, new int[] { 0, 1, 2 });
             var policySoftHands = GetOptimalPolicy(QSoftHands, 10, 8, new int[] { 0, 1, 2 });
+            var policySplit = GetOptimalPolicy(QSplit, 10, 10, new int[] { 0, 1, 2, 3 });
 
             PrintPolicy(policyHardHands, 10, 16);
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine();
             PrintPolicy(policySoftHands, 10, 8);
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            PrintPolicy(policySplit, 10, 10);
 
 
             Console.WriteLine("Done!");
@@ -161,13 +174,6 @@ namespace TG_V3
             return game;
         }
 
-        // Não altera o deck
-        public static Game PeekMove(Game game, Deck deck, int move)
-        {
-            var newDeck = new Deck(deck);
-            return MakeMove(game, newDeck, move);
-        }
-
         public static double EstimateMax(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, Game game, Deck deck)
         {
             if (!game.Final)
@@ -187,6 +193,17 @@ namespace TG_V3
             }
 
             return 0;
+        }
+
+        public static double EstimateMaxOnSplit(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, IEnumerable<Game> games, Deck deck)
+        {
+            return games.Select(game => EstimateMax(qHardHands, qSoftHands, qSplit, game, deck)).Average();
+        }
+
+        // Altera o deck
+        public static IEnumerable<Game> Split(Game game, Deck deck)
+        {
+            return game.Split(deck);
         }
 
         public static char[,] GetOptimalPolicy(double[,,] table, int x, int y, int[] moves)
