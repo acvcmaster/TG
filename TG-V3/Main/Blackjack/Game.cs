@@ -6,7 +6,7 @@ namespace TG_V3.Blackjack
     public class Game
     {
         // Starts a new game
-        public Game(Deck deck)
+        public Game(ref Deck deck)
         {
             // Distribute cards
             PlayerHand = new Hand();
@@ -77,26 +77,39 @@ namespace TG_V3.Blackjack
             PlayerHand.CardAt(0).Value.FaceValue ==
             PlayerHand.CardAt(1).Value.FaceValue;
 
-        public Game Stand(Deck deck, bool doubledown = false)
+        public Game Stand(ref Deck deck, bool doubledown = false)
         {
             var game = new Game(this);
 
             if (!game.Final)
             {
-                game.Reward = !doubledown ? 1 : 2;
+                var player = game.PlayerHand.Sum;
+                var dealer = game.DealerHand.Sum;
 
-                if (game.DealerBlackjack || (game.PlayerHand.Sum < game.DealerHand.Sum && game.DealerHand.Sum <= 21))
-                    game.Reward = !doubledown ? -1 : -2;
-                else if (game.PlayerHand.Sum == game.DealerHand.Sum)
-                    game.Reward = 0;
+                if (player > 21)
+                    game.Reward = dealer > 21 ? 0 : -1;
+                else
+                {
+                    if (dealer > 21)
+                        game.Reward = -1;
+                    else
+                    {
+                        if (player < dealer)
+                            game.Reward = -1;
+                        else if (dealer > player)
+                            game.Reward = 1;
+                        else game.Reward = 0;
+                    }
+                }
 
+                game.Reward *= doubledown ? 2 : 1;
                 game.Final = true;
             }
 
             return game;
         }
 
-        public Game Hit(Deck deck, bool doubledown = false)
+        public Game Hit(ref Deck deck, bool doubledown = false)
         {
             var game = new Game(this);
 
@@ -106,7 +119,7 @@ namespace TG_V3.Blackjack
 
                 if (game.PlayerHand.Sum == 21)
                 {
-                    return game.Stand(deck, doubledown);
+                    return game.Stand(ref deck, doubledown);
                 }
                 else if (game.PlayerHand.Sum > 21)
                 {
@@ -118,40 +131,39 @@ namespace TG_V3.Blackjack
             return game;
         }
 
-        public Game DoubleDown(Deck deck)
+        public Game DoubleDown(ref Deck deck)
         {
             var game = new Game(this);
 
             if (!game.Final)
             {
-                game = game.Hit(deck, true);
-                game = game.Stand(deck, true);
+                game = game.Hit(ref deck, true);
+                game = game.Stand(ref deck, true);
             }
 
             return game;
         }
 
-        public IEnumerable<Game> Split(Deck deck)
+        public IEnumerable<Game> Split(ref Deck deck)
         {
+            var results = new List<Game>();
+
             if (!Final && CanSplit)
             {
                 var left = new Game(this);
                 var right = new Game(this);
-                
-                right?.PlayerHand?.Replace(0, left?.PlayerHand?.CardAt(1));
 
                 left?.PlayerHand?.Replace(1, deck.Pop());
-                right?.PlayerHand?.Replace(1, deck.Pop());
+                right?.PlayerHand?.Replace(0, deck.Pop());
 
                 left?.CheckNatural();
                 right?.CheckNatural();
 
-
-                yield return left;
-                yield return right;
+                results.Add(left);
+                results.Add(right);
             }
 
-            yield break;
+            return results;
         }
 
         public void CheckNatural()

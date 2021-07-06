@@ -21,9 +21,10 @@ namespace TG_V3
         {
             double learningRate = 0.6;
             double discountFactor = 0.1;
-            double explorationFactor = 0.25; // tem que cair durante o aprendizado
-            int batchSize = 10000;
-            int maxBatches = 10000;
+            double explorationFactor = 0.2; // tem que cair durante o aprendizado
+            int batchSize = 1000;
+            int maxBatches = 1000;
+            int maxGamesWinrate = 10000;
 
             // Moves
             // 0 - Stand
@@ -41,7 +42,7 @@ namespace TG_V3
                 for (int episode = 0; episode < batchSize; episode++)
                 {
                     Deck deck = new Deck(4);
-                    Game game = new Game(deck);
+                    Game game = new Game(ref deck);
 
                     if (!game.Final)
                     {
@@ -66,20 +67,20 @@ namespace TG_V3
                             if (move != 3)
                             {
                                 // No split
-                                game = MakeMove(game, deck, move);
+                                game = MakeMove(game, ref deck, move);
                                 var reward = game.Reward;
 
                                 lock (mutex)
-                                    table[x, y, move] += learningRate * (reward + discountFactor * EstimateMax(QHardHands, QSoftHands, QSplit, game, deck) - table[x, y, move]);
+                                    table[x, y, move] += learningRate * (reward + discountFactor * EstimateMax(QHardHands, QSoftHands, QSplit, game) - table[x, y, move]);
                             }
                             else
                             {
                                 // Calculate split and break
-                                var games = Split(game, deck);
-                                var splitReward = games.Select(item => item.Reward).Average(); // Média ou soma?
+                                var games = Split(game, ref deck);
+                                var splitReward = games.Select(item => item.Reward).Sum(); // Média ou soma?
 
                                 lock (mutex)
-                                    table[x, y, move] += learningRate * (splitReward + discountFactor * EstimateMaxOnSplit(QHardHands, QSoftHands, QSplit, games, deck) - table[x, y, move]);
+                                    table[x, y, move] += learningRate * (splitReward + discountFactor * EstimateMaxOnSplit(QHardHands, QSoftHands, QSplit, games) - table[x, y, move]);
                                 break;
                             }
                         }
@@ -101,8 +102,76 @@ namespace TG_V3
             Console.WriteLine();
             PrintPolicy(policySplit, 10, 10);
 
+            EstimateWinrate(QHardHands, QSoftHands, QSplit, maxGamesWinrate);
 
             Console.WriteLine("Done!");
+        }
+
+        private static void EstimateWinrate(double[,,] QHardHands, double[,,] QSoftHands, double[,,] QSplit, int maxGames)
+        {
+            var playerScore = 0.0;
+            var dealerScore = 0.0;
+            var draws = 0.0;
+
+            for (int i = 0; i < maxGames; i++)
+            {
+                Deck deck = new Deck(4);
+                Game game = new Game(ref deck);
+
+                var reward = PlayGame(game, ref deck, QHardHands, QSoftHands, QSplit);
+
+                if (reward == 0)
+                    draws++;
+                else
+                {
+                    if (reward > 0)
+                        playerScore += reward;
+                    else
+                        dealerScore -= reward;
+                }
+            }
+
+            Console.WriteLine($"Player score: {playerScore}");
+            Console.WriteLine($"Dealer score: {dealerScore}");
+            Console.WriteLine($"Draws: {draws}");
+        }
+
+        public static double PlayGame(Game game, ref Deck deck, double[,,] QHardHands, double[,,] QSoftHands, double[,,] QSplit)
+        {
+            if (!game.Final)
+            {
+                while (!game.Final)
+                {
+                    var tableType = GetQLearningTable(game);
+                    double[,,] table = SelectTable(QHardHands, QSoftHands, QSplit, tableType);
+                    int x = GetXIndex(game);
+                    int y = GetYIndex(game, tableType);
+
+                    int[] moves = tableType != QLearningTable.Split
+                        ? new int[] { 0, 1, 2 }
+                        : new int[] { 0, 1, 2, 3 };
+                    var move = moves.MaxOver(action => table[x, y, action]);
+
+                    if (move != 3)
+                    {
+                        // No split
+                        game = MakeMove(game, ref deck, move);
+                    }
+                    else
+                    {
+                        // Calculate split and break
+                        var splitGames = Split(game, ref deck);
+                        var splitReward = 0.0;
+
+                        foreach (var splitGame in splitGames)
+                            splitReward += PlayGame(splitGame, ref deck, QHardHands, QSoftHands, QSplit);
+                        
+                        return splitReward;
+                    }
+                }
+            }
+
+            return game.Reward;
         }
 
         public static double[,,] SelectTable(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, QLearningTable tableType)
@@ -159,22 +228,22 @@ namespace TG_V3
         }
 
         // Altera o deck
-        public static Game MakeMove(Game game, Deck deck, int move)
+        public static Game MakeMove(Game game, ref Deck deck, int move)
         {
             switch (move)
             {
                 case 0:
-                    return game.Stand(deck);
+                    return game.Stand(ref deck);
                 case 1:
-                    return game.Hit(deck);
+                    return game.Hit(ref deck);
                 case 2:
-                    return game.DoubleDown(deck);
+                    return game.DoubleDown(ref deck);
             }
 
             return game;
         }
 
-        public static double EstimateMax(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, Game game, Deck deck)
+        public static double EstimateMax(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, Game game)
         {
             if (!game.Final)
             {
@@ -195,15 +264,15 @@ namespace TG_V3
             return 0;
         }
 
-        public static double EstimateMaxOnSplit(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, IEnumerable<Game> games, Deck deck)
+        public static double EstimateMaxOnSplit(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, IEnumerable<Game> games)
         {
-            return games.Select(game => EstimateMax(qHardHands, qSoftHands, qSplit, game, deck)).Average();
+            return games.Select(game => EstimateMax(qHardHands, qSoftHands, qSplit, game)).Average();
         }
 
         // Altera o deck
-        public static IEnumerable<Game> Split(Game game, Deck deck)
+        public static IEnumerable<Game> Split(Game game, ref Deck deck)
         {
-            return game.Split(deck);
+            return game.Split(ref deck);
         }
 
         public static char[,] GetOptimalPolicy(double[,,] table, int x, int y, int[] moves)
