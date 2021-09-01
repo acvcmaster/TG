@@ -352,6 +352,21 @@ namespace TG_V3
                     return GetSplitBaselinePolicy(table);
             }
         }
+
+        public static char[,] GetHardHandsBaselinePolicy(QLearningTable table)
+        {
+            
+        }
+
+        public static char[,] GetSoftHandsBaselinePolicy(QLearningTable table)
+        {
+
+        }
+
+        public static char[,] GetSplitBaselinePolicy(QLearningTable table)
+        {
+
+        }
         #endregion
     }
 }
