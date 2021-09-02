@@ -91,12 +91,12 @@ namespace TG_V3.Blackjack
                 else
                 {
                     if (dealer > 21)
-                        game.Reward = -1;
+                        game.Reward = 1;
                     else
                     {
                         if (player < dealer)
                             game.Reward = -1;
-                        else if (dealer > player)
+                        else if (player > dealer)
                             game.Reward = 1;
                         else game.Reward = 0;
                     }
@@ -171,7 +171,7 @@ namespace TG_V3.Blackjack
             if (PlayerBlackjack)
             {
                 Final = true;
-                Reward = 1.5;
+                Reward = DealerBlackjack ? 0 : 1.5;
             }
         }
     }

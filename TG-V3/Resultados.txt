@@ -1,0 +1,61 @@
+Random / (100k)
+Player score: 7269.5
+Dealer score: 117592
+Draws: 12467
+Normalized rewards: -1.103225
+Done!
+
+
+Baseline / (100k)
+Player score: 7142
+Dealer score: 82111.5
+Draws: 24193
+Normalized rewards: -0.749695
+Done!
+
+
+Aprendido: 100k / (100k)
+Player score: 7797
+Dealer score: 73303
+Draws: 25428
+Normalized rewards: -0.65506
+Done!
+
+
+Aprendido: 1kk / (100k)
+Player score: 7835.5
+Dealer score: 73578.5
+Draws: 25473
+Normalized rewards: -0.65743
+Done!
+
+
+
+Está aprenendo a ser melhor que a estratégia ótima?!
+
+Verificar:
+    - Método para escolher movimentos ótimos (Está OK!)
+    - Engine do jogo (sus)
+    - Fórmula do Q-Learning (???)
+
+
+Corrigido (era problema no jogo)
+
+Random / (100k)
+Player score: 41896
+Dealer score: 90927
+Draws: 3813
+Normalized rewards: -0.49031
+Done!
+
+Baseline / (100k)
+Player score: 53522.5
+Dealer score: 53166.5
+Draws: 9056
+Normalized rewards: 0.00356
+Done!
+
+
+- Entender pq a vantagem da casa não fica em torno de 0.5%
+    - Ou será que fica? Testes mostraram algo em torno de 0 +-0.1 %
+    - Será que há algum caso raro aonde a casa ganharia mas não está ganhando?

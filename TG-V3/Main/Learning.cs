@@ -15,13 +15,13 @@ namespace TG_V3
         Split
     }
 
-    class Program
+    partial class Learning
     {
         static void Main(string[] args)
         {
             double discountFactor = 0.1;
-            int maxEpisodes = 10000000;
-            int maxGamesWinrate = 10000;
+            int maxEpisodes = 10000;
+            int maxGamesWinrate = 100000;
 
             // Moves
             // 0 - Stand
@@ -32,6 +32,7 @@ namespace TG_V3
             double[,,] QHardHands = GlobalRandom.NextTable(10, 16, 3); // dealer card, sum, move
             double[,,] QSoftHands = GlobalRandom.NextTable(10, 8, 3); // dealer card, Ace-N, move
             double[,,] QSplit = GlobalRandom.NextTable(10, 10, 4); // dealer card, pair, move
+
 
             for (int episode = 0; episode < maxEpisodes; episode++)
             {
@@ -82,6 +83,12 @@ namespace TG_V3
                 }
             }
 
+
+            // var QHardHands = GetBaselineTable(QLearningTable.HardHands);
+            // var QSoftHands = GetBaselineTable(QLearningTable.SoftHands);
+            // var QSplit = GetBaselineTable(QLearningTable.Split);
+
+
             var policyHardHands = GetOptimalPolicy(QHardHands, 10, 16, new int[] { 0, 1, 2 });
             var policySoftHands = GetOptimalPolicy(QSoftHands, 10, 8, new int[] { 0, 1, 2 });
             var policySplit = GetOptimalPolicy(QSplit, 10, 10, new int[] { 0, 1, 2, 3 });
@@ -103,41 +110,52 @@ namespace TG_V3
 
         static double LearningRate(int episode, int maxEpisodes)
         {
-            return 1 - ExplorationFactor(episode, maxEpisodes);
+            return 0.6;
+            // return 1 - ExplorationFactor(episode, maxEpisodes);
         }
 
         static double ExplorationFactor(int episode, int maxEpisodes)
         {
-            return (2 / Math.PI) * Math.Atan(episode / 40000);
+            // return (2 / Math.PI) * Math.Atan(2 * episode / maxEpisodes);
+            return 0.7;
         }
 
         private static void EstimateWinrate(double[,,] QHardHands, double[,,] QSoftHands, double[,,] QSplit, int maxGames)
         {
+            var mutex = new object();
+
             var playerScore = 0.0;
             var dealerScore = 0.0;
             var draws = 0.0;
+            var totalRewards = 0.0;
 
-            for (int i = 0; i < maxGames; i++)
+            Parallel.For(0, maxGames, i => // Nesse caso, como não atualizamos a tabela Q, podemos jogar os jogos em paralelo
             {
                 Deck deck = new Deck(4);
                 Game game = new Game(ref deck);
 
                 var reward = PlayGame(game, ref deck, QHardHands, QSoftHands, QSplit);
 
-                if (reward == 0)
-                    draws++;
-                else
+                lock (mutex)
                 {
-                    if (reward > 0)
-                        playerScore += reward;
+                    if (reward == 0)
+                        draws++;
                     else
-                        dealerScore -= reward;
+                    {
+                        if (reward > 0)
+                            playerScore += reward;
+                        else
+                            dealerScore -= reward;
+                    }
+
+                    totalRewards += reward;
                 }
-            }
+            });
 
             Console.WriteLine($"Player score: {playerScore}");
             Console.WriteLine($"Dealer score: {dealerScore}");
             Console.WriteLine($"Draws: {draws}");
+            Console.WriteLine($"Normalized rewards: {totalRewards / maxGames}");
         }
 
         public static double PlayGame(Game game, ref Deck deck, double[,,] QHardHands, double[,,] QSoftHands, double[,,] QSplit)
@@ -270,7 +288,7 @@ namespace TG_V3
 
         public static double EstimateMaxOnSplit(double[,,] qHardHands, double[,,] qSoftHands, double[,,] qSplit, IEnumerable<Game> games)
         {
-            return games.Select(game => EstimateMax(qHardHands, qSoftHands, qSplit, game)).Average();
+            return games.Select(game => EstimateMax(qHardHands, qSoftHands, qSplit, game)).Sum();
         }
 
         // Altera o deck
@@ -278,95 +296,5 @@ namespace TG_V3
         {
             return game.Split(ref deck);
         }
-
-        public static char[,] GetOptimalPolicy(double[,,] table, int x, int y, int[] moves)
-        {
-            char[,] result = new char[x, y];
-            for (int i = 0; i < x; i++)
-                for (int j = 0; j < y; j++)
-                {
-                    switch (moves.MaxOver(item => table[i, j, item]))
-                    {
-                        case 0:
-                            result[i, j] = 'S';
-                            break;
-                        case 1:
-                            result[i, j] = 'H';
-                            break;
-                        case 2:
-                            result[i, j] = 'D';
-                            break;
-                        case 3:
-                            result[i, j] = 'P';
-                            break;
-                    }
-                }
-
-            return result;
-        }
-
-        public static void PrintPolicy(char[,] policy, int x, int y)
-        {
-            var foreground = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Black;
-            for (int j = 0; j < y; j++)
-            {
-                for (int i = 0; i < x; i++)
-                {
-                    var move = policy[i, j];
-                    var color = Console.BackgroundColor;
-
-                    switch (move)
-                    {
-                        case 'S':
-                            Console.BackgroundColor = ConsoleColor.Red;
-                            break;
-                        case 'H':
-                            Console.BackgroundColor = ConsoleColor.Green;
-                            break;
-                        case 'D':
-                            Console.BackgroundColor = ConsoleColor.Yellow;
-                            break;
-                        case 'P':
-                            Console.BackgroundColor = ConsoleColor.Magenta;
-                            break;
-                    }
-                    Console.Write($" {move} ");
-                    Console.BackgroundColor = color;
-                }
-                Console.WriteLine();
-            }
-            Console.ForegroundColor = foreground;
-        }
-
-        #region Baseline
-        public static char[,] GetBaselinePolicy(QLearningTable table)
-        {
-            switch (table)
-            {
-                case QLearningTable.HardHands:
-                    return GetHardHandsBaselinePolicy(table);
-                case QLearningTable.SoftHands:
-                    return GetSoftHandsBaselinePolicy(table);
-                case QLearningTable.Split:
-                    return GetSplitBaselinePolicy(table);
-            }
-        }
-
-        public static char[,] GetHardHandsBaselinePolicy(QLearningTable table)
-        {
-            
-        }
-
-        public static char[,] GetSoftHandsBaselinePolicy(QLearningTable table)
-        {
-
-        }
-
-        public static char[,] GetSplitBaselinePolicy(QLearningTable table)
-        {
-
-        }
-        #endregion
     }
 }

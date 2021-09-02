@@ -17,11 +17,13 @@ namespace TG_V3.Blackjack
 
         public List<Card> Cards { get; set; }
 
+        public int HardSum => Cards.Sum(item => item.BlackjackValue);
+
         public int Sum
         {
             get
             {
-                var hardSum = Cards.Sum(item => item.BlackjackValue);
+                var hardSum = HardSum;
 
                 if (Cards.Where(item => item.FaceValue == FaceValue.Ace).Any())
                 {
@@ -32,7 +34,7 @@ namespace TG_V3.Blackjack
             }
         }
 
-        public bool SoftHand => Cards.Sum(item => item.BlackjackValue) != Sum;
+        public bool SoftHand => HardSum != Sum;
 
         public int Count => Cards?.Count() ?? 0;
 
