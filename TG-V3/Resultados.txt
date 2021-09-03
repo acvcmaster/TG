@@ -56,6 +56,18 @@ Normalized rewards: 0.00356
 Done!
 
 
-- Entender pq a vantagem da casa não fica em torno de 0.5%
-    - Ou será que fica? Testes mostraram algo em torno de 0 +-0.1 %
-    - Será que há algum caso raro aonde a casa ganharia mas não está ganhando?
+
+No TG:
+
+Usar os sites abaixo para colocar as regras
+e obter a estratégia ótima (vemos que é a mesma que a nossa)
+    - https://wizardofodds.com/games/blackjack/calculator/
+    - https://wizardofodds.com/games/blackjack/strategy/calculator/
+
+
+Comparar a vantagem da casa medida vs teórica (ver site acima)
+    - Dadas as devidas incertezas
+
+Definir o conceito de 'Eficácia da estratégia'
+    - Que seria o quanto uma dada estratégia se aproxima
+    da ideal. Definindo 0% como sendo uma estratégia aleatória e 100% como sendo a estratégia ideal.
