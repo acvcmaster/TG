@@ -59,6 +59,12 @@ Done!
 
 No TG:
 
+Falar sobre o espaço de estratégias (e seu tamanho)
+
+Falar sobre o erro relativo (e como ele decresce com o número de mãos consideradas)
+    ** Na real, falar sobre o coeficiente de variação
+
+
 Usar os sites abaixo para colocar as regras
 e obter a estratégia ótima (vemos que é a mesma que a nossa)
     - https://wizardofodds.com/games/blackjack/calculator/

@@ -21,7 +21,13 @@ namespace TG_V3.Extensions
         public static double Sterr(this IEnumerable<double> list)
         {
             double count = list?.Count() ?? 1;
-            return Stdev(list) / count;
+            return Stdev(list) / Math.Sqrt(count);
+        }
+
+        public static double CoeffVar(this IEnumerable<double> list)
+        {
+            double average = list.Average();
+            return list.Stdev() / average;
         }
     }
 }
