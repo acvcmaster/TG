@@ -1,5 +1,3 @@
-#define HOUSE_EDGE
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,12 +13,17 @@ namespace TG_V3
     {
         public static void Main()
         {
+            // CalculateHouseEdge();
+            ShowRandomResults();
+            ShowBaselineResults();
+            ShowQLearningResults();
+        }
 
-#if HOUSE_EDGE // Vantagem da casa
-
+        private static void CalculateHouseEdge()
+        {
             using (var dados = new StreamWriter("Data/vantagem_casa.csv"))
             {
-                var SAMPLES = 20; // número de amostras (e também de threads)
+                var SAMPLES = 50; // número de amostras (e também de threads)
                 var STEP = 10000;
                 var MAX_STEPS = 10;
                 var baseline = Learning.GetBaselineModel();
@@ -34,17 +37,57 @@ namespace TG_V3
                     dados.WriteLine($"{max_games}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {100 * normalizedRewards.CoefficientOfVariation}");
                 }
             }
-#endif
+        }
 
-            // EstimateRandomWinrate(MAX_GAMES, SAMPLES);
+        private static void ShowRandomResults()
+        {
+            Console.WriteLine("\n\n\n");
 
+            var estimate = EstimateRandomWinrate(100000, 30);
 
+            Console.WriteLine($"Random strategy winrate: {estimate.WinPercentage}");
+            Console.WriteLine($"Random stategy normalized rewards: {estimate.NormalizedRewards}");
+            Console.WriteLine("\n\n\n");
+        }
 
+        private static void ShowBaselineResults()
+        {
+            Console.WriteLine("\n\n\n");
 
+            var learned = Learning.GetBaselineModel();
+            var estimate = EstimateWinrate(learned, 100000, 30);
 
-            // QHardHands = GetOptimalPolicy(QHardHands, 10, 16, new int[] { 0, 1, 2 }),
-            // QSoftHands = GetOptimalPolicy(QSoftHands, 10, 8, new int[] { 0, 1, 2 }),
-            // QSplit = GetOptimalPolicy(QSplit, 10, 10, new int[] { 0, 1, 2, 3 })
+            var QHardHands = Learning.GetOptimalPolicy(learned.QHardHands, 10, 16, new int[] { 0, 1, 2 });
+            var QSoftHands = Learning.GetOptimalPolicy(learned.QSoftHands, 10, 8, new int[] { 0, 1, 2 });
+            var QSplit = Learning.GetOptimalPolicy(learned.QSplit, 10, 10, new int[] { 0, 1, 2, 3 });
+
+            Learning.PrintPolicy(QHardHands, 10, 16);
+            Learning.PrintPolicy(QSoftHands, 10, 8);
+            Learning.PrintPolicy(QSplit, 10, 10);
+
+            Console.WriteLine($"Baseline strategy winrate: {estimate.WinPercentage}");
+            Console.WriteLine($"Baseline stategy normalized rewards: {estimate.NormalizedRewards}");
+            Console.WriteLine("\n\n\n");
+        }
+
+        private static void ShowQLearningResults()
+        {
+            Console.WriteLine("\n\n\n");
+
+            var learned = Learning.GetQLearningModel((ep, maxEp) => 0.6, (ep, maxEp) => 0.3, 0.1, 1000000);
+            var estimate = EstimateWinrate(learned, 100000, 30);
+
+            var QHardHands = Learning.GetOptimalPolicy(learned.QHardHands, 10, 16, new int[] { 0, 1, 2 });
+            var QSoftHands = Learning.GetOptimalPolicy(learned.QSoftHands, 10, 8, new int[] { 0, 1, 2 });
+            var QSplit = Learning.GetOptimalPolicy(learned.QSplit, 10, 10, new int[] { 0, 1, 2, 3 });
+
+            Learning.PrintPolicy(QHardHands, 10, 16);
+            Learning.PrintPolicy(QSoftHands, 10, 8);
+            Learning.PrintPolicy(QSplit, 10, 10);
+
+            Console.WriteLine($"Learned strategy winrate: {estimate.WinPercentage}");
+            Console.WriteLine($"Learned stategy normalized rewards: {estimate.NormalizedRewards}");
+            Console.WriteLine("\n\n\n");
         }
 
         private static WinrateEstimate EstimateWinrate(QLearningModel model, int maxGames, int samples)

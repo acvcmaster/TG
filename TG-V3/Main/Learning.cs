@@ -18,7 +18,7 @@ namespace TG_V3
             Split
         }
 
-        static QLearningModel GetQLearningModel(Func<int, int, double> learningRate, Func<int, int, double> explorationFactor, double discountFactor, int maxEpisodes)
+        public static QLearningModel GetQLearningModel(Func<int, int, double> learningRate, Func<int, int, double> explorationFactor, double discountFactor, int maxEpisodes)
         {
             // Moves
             // 0 - Stand

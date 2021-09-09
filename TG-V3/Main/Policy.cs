@@ -63,6 +63,7 @@ namespace TG_V3
                 Console.WriteLine();
             }
             Console.ForegroundColor = foreground;
+            Console.WriteLine("\n\n");
         }
 
         #region Baseline
