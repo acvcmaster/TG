@@ -15,10 +15,10 @@ namespace TG_V3
         public static void Main()
         {
             // CalculateHouseEdge();
-            CalculateLearningCurve((ep, maxEp) => 0.2, (ep, maxEp) => 0.25, 0.1, 1000, 100000);
+            // CalculateLearningCurve((ep, maxEp) => 0.05, (ep, maxEp) => 1, 0.1, 1000, 100000);
             // ShowRandomResults();
             // ShowBaselineResults();
-            // ShowQLearningResults();
+            ShowQLearningResults((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 1000000);
         }
 
         private static void CalculateHouseEdge()
@@ -98,12 +98,12 @@ namespace TG_V3
             Console.WriteLine("\n\n\n");
         }
 
-        private static void ShowQLearningResults()
+        private static void ShowQLearningResults(Func<int, int, double> learningRate, Func<int, int, double> explorationFactor, double discountFactor, int maxEpisodes)
         {
             Console.WriteLine("\n\n\n");
 
-            var learned = Learning.GetQLearningModel((ep, maxEp) => 0.6, (ep, maxEp) => 0.3, 0.1, 1000000);
-            var estimate = EstimateWinrate(learned, 100000, 30);
+            var learned = Learning.GetQLearningModel(learningRate, explorationFactor, discountFactor, maxEpisodes);
+            var estimate = EstimateWinrate(learned, 100000, 50);
 
             var QHardHands = Learning.GetOptimalPolicy(learned.QHardHands, 10, 16, new int[] { 0, 1, 2 });
             var QSoftHands = Learning.GetOptimalPolicy(learned.QSoftHands, 10, 8, new int[] { 0, 1, 2 });
@@ -269,7 +269,7 @@ namespace TG_V3
     {
         public double Value { get; set; }
         public double Uncertainty { get; set; }
-        public double RelativeUncertainty => Math.Abs(Uncertainty) / Value;
+        public double RelativeUncertainty => Math.Abs(Uncertainty) / Math.Abs(Value);
         public double CoefficientOfVariation { get; set; }
 
         public override string ToString()
