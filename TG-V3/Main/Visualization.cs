@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TG_V3.Blackjack;
 using TG_V3.Extensions;
+using TG_V3.Util;
 
 namespace TG_V3
 {
@@ -14,9 +15,10 @@ namespace TG_V3
         public static void Main()
         {
             // CalculateHouseEdge();
-            ShowRandomResults();
-            ShowBaselineResults();
-            ShowQLearningResults();
+            CalculateLearningCurve((ep, maxEp) => 0.2, (ep, maxEp) => 0.25, 0.1, 1000, 100000);
+            // ShowRandomResults();
+            // ShowBaselineResults();
+            // ShowQLearningResults();
         }
 
         private static void CalculateHouseEdge()
@@ -35,6 +37,32 @@ namespace TG_V3
                     var winPercentage = baselineEstimate.WinPercentage;
 
                     dados.WriteLine($"{max_games}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {100 * normalizedRewards.CoefficientOfVariation}");
+                    dados.Flush();
+                }
+            }
+        }
+
+        private static void CalculateLearningCurve(Func<int, int, double> learningRate, Func<int, int, double> explorationFactor, double discountFactor, int step, int maxEpisodes) // Curva de aprendizado (ganhos normalizados vs jogos)
+        {
+            using (var dados = new StreamWriter("Data/curva_aprendizado.csv"))
+            {
+                int ESTIMATE_MAX_GAMES = 100000;
+                int ESTIMATE_SAMPLES = 50;
+                double[,,] qHardHands = GlobalRandom.NextTable(10, 16, 3); // dealer card, sum, move
+                double[,,] qSoftHands = GlobalRandom.NextTable(10, 8, 3); // dealer card, Ace-N, move
+                double[,,] qSplit = GlobalRandom.NextTable(10, 10, 4); // dealer card, pair, move
+
+                for (var i = 0; i < maxEpisodes; i += step)
+                {
+                    var estimate = EstimateWinrate(new QLearningModel() { QHardHands = qHardHands, QSoftHands = qSoftHands, QSplit = qSplit }, ESTIMATE_MAX_GAMES, ESTIMATE_SAMPLES);
+                    var winPercentage = estimate.WinPercentage;
+                    var normalizedRewards = estimate.NormalizedRewards;
+
+                    Console.WriteLine(i); // Remover
+
+                    dados.WriteLine($"{i}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {100 * normalizedRewards.CoefficientOfVariation}");
+                    dados.Flush();
+                    Learning.QLearning(learningRate, explorationFactor, discountFactor, step, ref qHardHands, ref qSoftHands, ref qSplit);
                 }
             }
         }
