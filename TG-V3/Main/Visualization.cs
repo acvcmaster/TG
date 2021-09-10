@@ -14,10 +14,10 @@ namespace TG_V3
     {
         public static void Main()
         {
-            // CalculateHouseEdge();
-            // CalculateLearningCurve((ep, maxEp) => 0.05, (ep, maxEp) => 1, 0.1, 1000, 100000);
-            // ShowRandomResults();
-            // ShowBaselineResults();
+            CalculateHouseEdge();
+            CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
+            ShowRandomResults();
+            ShowBaselineResults();
             ShowQLearningResults((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 1000000);
         }
 
@@ -36,7 +36,7 @@ namespace TG_V3
                     var normalizedRewards = baselineEstimate.NormalizedRewards;
                     var winPercentage = baselineEstimate.WinPercentage;
 
-                    dados.WriteLine($"{max_games}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {100 * normalizedRewards.CoefficientOfVariation}");
+                    dados.WriteLine($"{max_games}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.RelativeUncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {winPercentage.RelativeUncertainty}, {normalizedRewards.CoefficientOfVariation}");
                     dados.Flush();
                 }
             }
@@ -52,7 +52,7 @@ namespace TG_V3
                 double[,,] qSoftHands = GlobalRandom.NextTable(10, 8, 3); // dealer card, Ace-N, move
                 double[,,] qSplit = GlobalRandom.NextTable(10, 10, 4); // dealer card, pair, move
 
-                for (var i = 0; i < maxEpisodes; i += step)
+                for (var i = 0; i <= maxEpisodes; i += step)
                 {
                     var estimate = EstimateWinrate(new QLearningModel() { QHardHands = qHardHands, QSoftHands = qSoftHands, QSplit = qSplit }, ESTIMATE_MAX_GAMES, ESTIMATE_SAMPLES);
                     var winPercentage = estimate.WinPercentage;
@@ -60,8 +60,9 @@ namespace TG_V3
 
                     Console.WriteLine(i); // Remover
 
-                    dados.WriteLine($"{i}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {100 * normalizedRewards.CoefficientOfVariation}");
+                    dados.WriteLine($"{i}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.RelativeUncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {winPercentage.RelativeUncertainty}, {normalizedRewards.CoefficientOfVariation}");
                     dados.Flush();
+
                     Learning.QLearning(learningRate, explorationFactor, discountFactor, step, ref qHardHands, ref qSoftHands, ref qSplit);
                 }
             }
@@ -269,12 +270,12 @@ namespace TG_V3
     {
         public double Value { get; set; }
         public double Uncertainty { get; set; }
-        public double RelativeUncertainty => Math.Abs(Uncertainty) / Math.Abs(Value);
+        public double RelativeUncertainty => 100 * Math.Abs(Uncertainty) / Math.Abs(Value);
         public double CoefficientOfVariation { get; set; }
 
         public override string ToString()
         {
-            return $"{Value.ToString("0.#######")} ± {Uncertainty.ToString("0.#######")} ({(100 * RelativeUncertainty).ToString("0.##")} %)";
+            return $"{Value.ToString("0.#######")} ± {Uncertainty.ToString("0.#######")} ({(RelativeUncertainty).ToString("0.##")} %)";
         }
     }
 }

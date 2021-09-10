@@ -24,10 +24,13 @@ namespace TG_V3.Extensions
             return Stdev(list) / Math.Sqrt(count);
         }
 
+        /// <summary>
+        /// Expressed as a percentage.
+        /// </summary>
         public static double CoeffVar(this IEnumerable<double> list)
         {
             double average = list.Average();
-            return list.Stdev() / average;
+            return 100 * list.Stdev() / average;
         }
     }
 }
