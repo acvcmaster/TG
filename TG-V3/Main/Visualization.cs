@@ -15,10 +15,9 @@ namespace TG_V3
         public static void Main()
         {
             CalculateHouseEdge();
-            CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
-            ShowRandomResults();
-            ShowBaselineResults();
-            ShowQLearningResults((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 1000000);
+            // CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
+            // ShowRandomResults();
+            // ShowQLearningResults((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 1000000);
         }
 
         private static void CalculateHouseEdge()
@@ -27,7 +26,7 @@ namespace TG_V3
             {
                 var SAMPLES = 50; // número de amostras (e também de threads)
                 var STEP = 10000;
-                var MAX_STEPS = 10;
+                var MAX_STEPS = 20;
                 var baseline = Learning.GetBaselineModel();
 
                 for (var max_games = STEP; max_games <= MAX_STEPS * STEP; max_games += STEP)
@@ -36,7 +35,7 @@ namespace TG_V3
                     var normalizedRewards = baselineEstimate.NormalizedRewards;
                     var winPercentage = baselineEstimate.WinPercentage;
 
-                    dados.WriteLine($"{max_games}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.RelativeUncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {winPercentage.RelativeUncertainty}, {normalizedRewards.CoefficientOfVariation}");
+                    dados.WriteLine($"{max_games}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.RelativeUncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {normalizedRewards.RelativeUncertainty}, {normalizedRewards.CoefficientOfVariation}");
                     dados.Flush();
                 }
             }
