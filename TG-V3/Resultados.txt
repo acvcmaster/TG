@@ -77,3 +77,5 @@ Comparar a vantagem da casa medida vs teórica (ver site acima)
 Definir o conceito de 'Eficácia da estratégia'
     - Que seria o quanto uma dada estratégia se aproxima
     da ideal. Definindo 0% como sendo uma estratégia aleatória e 100% como sendo a estratégia ideal.
+
+- Site interessante: https://towardsdatascience.com/the-statistics-of-blackjack-e3b5fc29e67d
