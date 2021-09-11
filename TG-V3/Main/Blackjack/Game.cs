@@ -87,7 +87,7 @@ namespace TG_V3.Blackjack
                 var dealer = game.DealerHand.Sum;
 
                 if (player > 21)
-                    game.Reward = dealer > 21 ? 0 : -1;
+                    game.Reward = -1;
                 else
                 {
                     if (dealer > 21)
