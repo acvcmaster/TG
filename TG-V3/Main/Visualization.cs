@@ -14,8 +14,8 @@ namespace TG_V3
     {
         public static void Main()
         {
-            CalculateHouseEdge();
-            ShowBaselineResults();
+            // CalculateHouseEdge();
+            // ShowBaselineResults();
             ShowRandomResults();
             // ShowHardHandsBaselineResults();
             // CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
@@ -206,8 +206,12 @@ namespace TG_V3
             Parallel.For(0, samples, j =>
             {
                 var model = Learning.GetRandomModel();
-                model.QHardHands = baseline.QHardHands;
-                model.Name = "Hardhands ótimas";
+
+                if (baselineHardHands)
+                {
+                    model.QHardHands = baseline.QHardHands;
+                    model.Name = "Hardhands ótimas";
+                }
 
                 var playerScore = 0.0;
                 var dealerScore = 0.0;
