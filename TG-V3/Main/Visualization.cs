@@ -15,9 +15,12 @@ namespace TG_V3
         public static void Main()
         {
             CalculateHouseEdge();
+            ShowBaselineResults();
+            ShowRandomResults();
+            // ShowHardHandsBaselineResults();
             // CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
-            // ShowRandomResults();
             // ShowQLearningResults((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 1000000);
+
         }
 
         private static void CalculateHouseEdge()
@@ -71,7 +74,7 @@ namespace TG_V3
         {
             Console.WriteLine("\n\n\n");
 
-            var estimate = EstimateRandomWinrate(100000, 30);
+            var estimate = EstimateRandomWinrate(100000, 50);
 
             Console.WriteLine($"Random strategy winrate: {estimate.WinPercentage}");
             Console.WriteLine($"Random stategy normalized rewards: {estimate.NormalizedRewards}");
@@ -82,12 +85,12 @@ namespace TG_V3
         {
             Console.WriteLine("\n\n\n");
 
-            var learned = Learning.GetBaselineModel();
-            var estimate = EstimateWinrate(learned, 100000, 30);
+            var baseline = Learning.GetBaselineModel();
+            var estimate = EstimateWinrate(baseline, 100000, 50);
 
-            var QHardHands = Learning.GetOptimalPolicy(learned.QHardHands, 10, 16, new int[] { 0, 1, 2 });
-            var QSoftHands = Learning.GetOptimalPolicy(learned.QSoftHands, 10, 8, new int[] { 0, 1, 2 });
-            var QSplit = Learning.GetOptimalPolicy(learned.QSplit, 10, 10, new int[] { 0, 1, 2, 3 });
+            var QHardHands = Learning.GetOptimalPolicy(baseline.QHardHands, 10, 16, new int[] { 0, 1, 2 });
+            var QSoftHands = Learning.GetOptimalPolicy(baseline.QSoftHands, 10, 8, new int[] { 0, 1, 2 });
+            var QSplit = Learning.GetOptimalPolicy(baseline.QSplit, 10, 10, new int[] { 0, 1, 2, 3 });
 
             Learning.PrintPolicy(QHardHands, 10, 16);
             Learning.PrintPolicy(QSoftHands, 10, 8);
@@ -95,6 +98,17 @@ namespace TG_V3
 
             Console.WriteLine($"Baseline strategy winrate: {estimate.WinPercentage}");
             Console.WriteLine($"Baseline stategy normalized rewards: {estimate.NormalizedRewards}");
+            Console.WriteLine("\n\n\n");
+        }
+
+        private static void ShowHardHandsBaselineResults()
+        {
+            Console.WriteLine("\n\n\n");
+
+            var estimate = EstimateRandomWinrate(100000, 50, true);
+
+            Console.WriteLine($"Baseline strategy with random soft/split winrate: {estimate.WinPercentage}");
+            Console.WriteLine($"Baseline strategy with random soft/split normalized rewards: {estimate.NormalizedRewards}");
             Console.WriteLine("\n\n\n");
         }
 
@@ -179,7 +193,7 @@ namespace TG_V3
             };
         }
 
-        private static WinrateEstimate EstimateRandomWinrate(int maxGames, int samples)
+        private static WinrateEstimate EstimateRandomWinrate(int maxGames, int samples, bool baselineHardHands = false)
         {
             var mutex = new object();
             var totalPlayerScores = new List<double>();
@@ -187,10 +201,14 @@ namespace TG_V3
             var totalDraws = new List<double>();
             var totalRewards = new List<double>();
             var totalWinrate = new List<double>();
+            var baseline = Learning.GetBaselineModel();
 
             Parallel.For(0, samples, j =>
             {
                 var model = Learning.GetRandomModel();
+                model.QHardHands = baseline.QHardHands;
+                model.Name = "Hardhands ótimas";
+
                 var playerScore = 0.0;
                 var dealerScore = 0.0;
                 var draws = 0.0;
