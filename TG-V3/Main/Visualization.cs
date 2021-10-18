@@ -19,7 +19,12 @@ namespace TG_V3
             // ShowRandomResults();
             // ShowHardHandsBaselineResults();
             // CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
-            ShowQLearningResults((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 1000000);
+            ShowQLearningResults(
+                learningRate: (ep, maxEp) => 0.005,
+                explorationFactor: (ep, maxEp) => 1,
+                discountFactor: 0.9,
+                maxEpisodes: 100000
+            );
             // ShowLoadedModelResutls("Models/Baseline.dat");
         }
 
@@ -127,9 +132,28 @@ namespace TG_V3
             Learning.PrintPolicy(QSoftHands, 10, 8);
             Learning.PrintPolicy(QSplit, 10, 10);
 
+            var parameterString = GetParameterString(learningRate, explorationFactor, discountFactor, maxEpisodes);
+            Learning.SaveModel(learned, $"{parameterString}{estimate}");
+
             Console.WriteLine($"Learned strategy winrate: {estimate.WinPercentage}");
             Console.WriteLine($"Learned stategy normalized rewards: {estimate.NormalizedRewards}");
             Console.WriteLine("\n\n\n");
+        }
+
+        private static string GetParameterString(Func<int, int, double> learningRate, Func<int, int, double> explorationFactor, double discountFactor, int maxEpisodes)
+        {
+            var lr = learningRate(0, 0);
+            var ef = explorationFactor(0, 0);
+            var df = discountFactor;
+            var me = maxEpisodes;
+
+            return @$"
+Parâmetros utilizados:
+    Taxa de aprendizado: {lr.ToString("0.#######")}
+    Fator de exploração: {ef.ToString("0.#######")}
+    Fator de desconto: {df.ToString("0.#######")}
+    Número de episódios: {me.ToString("0.#######")}
+";
         }
 
         private static void ShowLoadedModelResutls(string path)
@@ -296,12 +320,12 @@ namespace TG_V3
         {
             var builder = new StringBuilder();
 
-            builder.AppendLine("--------------------------------------------");
+            builder.AppendLine("Resultados:");
             builder.AppendLine($"\tPontuação do jogador: {PlayerScore}");
             builder.AppendLine($"\tPontuação do dealer: {DealerScore}");
             builder.AppendLine($"\tEmpates: {Draws}");
+            builder.AppendLine($"\tTaxa de vitória: {WinPercentage}");
             builder.AppendLine($"\tRecompensa normalizada: {NormalizedRewards}");
-            builder.AppendLine("--------------------------------------------");
 
             return $"{builder}";
         }

@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using TG_V3.Extensions;
 
 namespace TG_V3
@@ -85,7 +84,7 @@ namespace TG_V3
 
         public static char[,] GetHardHandsBaselinePolicy()
         {
-            return Flip(new char[16, 10]
+            return Transpose(new char[16, 10]
             {
                 {'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S'},
                 {'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S'},
@@ -108,7 +107,7 @@ namespace TG_V3
 
         public static char[,] GetSoftHandsBaselinePolicy()
         {
-            return Flip(new char[8, 10]
+            return Transpose(new char[8, 10]
             {
                 {'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S'},
                 {'S', 'S', 'S', 'S', 'D', 'S', 'S', 'S', 'S', 'S'},
@@ -123,7 +122,7 @@ namespace TG_V3
 
         public static char[,] GetSplitBaselinePolicy()
         {
-            return Flip(new char[10, 10]
+            return Transpose(new char[10, 10]
             {
                 {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
                 {'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S', 'S'},
@@ -173,7 +172,7 @@ namespace TG_V3
                     return 0;
             }
         }
-        public static T[,] Flip<T>(T[,] array, int x, int y)
+        public static T[,] Transpose<T>(T[,] array, int x, int y)
         {
             var result = new T[x, y];
 
@@ -186,69 +185,6 @@ namespace TG_V3
             return result;
         }
 
-        public static QLearningModel LoadModel(string path)
-        {
-            using (var reader = new StreamReader(path))
-            {
-                var polices = LoadPolicies(reader.BaseStream);
-
-                if (polices != null)
-                {
-                    return new QLearningModel()
-                    {
-                        Name = Path.GetFileNameWithoutExtension(path),
-                        QHardHands = GetTableFromPolicy(polices.Item1, 10, 16, 3),
-                        QSoftHands = GetTableFromPolicy(polices.Item2, 10, 8, 3),
-                        QSplit = GetTableFromPolicy(polices.Item3, 10, 10, 4),
-                    };
-                }
-                else
-                    throw new Exception($"Failed to load model from file '{path}'.");
-            }
-        }
-
-        public static Tuple<char[,], char[,], char[,]> LoadPolicies(Stream stream)
-        {
-            using (var reader = new StreamReader(stream))
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-
-                var data = reader.ReadToEnd();
-                var moves = GetValidatedPolices(data);
-                var hardHands = new char[16, 10];
-                var softHands = new char[8, 10];
-                var splits = new char[10, 10];
-                var index = 0;
-
-                for (int j = 0; j < 16; j++)
-                    for (int i = 0; i < 10; i++)
-                    {
-                        hardHands[j, i] = moves[index];
-                        index++;
-                    }
-
-                for (int j = 0; j < 8; j++)
-                    for (int i = 0; i < 10; i++)
-                    {
-                        softHands[j, i] = moves[index];
-                        index++;
-                    }
-
-                for (int j = 0; j < 10; j++)
-                    for (int i = 0; i < 10; i++)
-                    {
-                        splits[j, i] = moves[index];
-                        index++;
-                    }
-
-                return new Tuple<char[,], char[,], char[,]>
-                (
-                    Flip(hardHands, 10, 16),
-                    Flip(softHands, 10, 8),
-                    Flip(splits, 10, 10)
-                );
-            }
-        }
 
         public static char[] GetValidatedPolices(string data)
         {

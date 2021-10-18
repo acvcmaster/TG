@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TG_V3.Blackjack;
@@ -252,6 +253,109 @@ namespace TG_V3
         public static IEnumerable<Game> Split(Game game, ref Deck deck)
         {
             return game.Split(ref deck);
+        }
+
+
+        public static QLearningModel LoadModel(string path)
+        {
+            using (var reader = new StreamReader(path))
+            {
+                var polices = LoadPolicies(reader.BaseStream);
+
+                if (polices != null)
+                {
+                    return new QLearningModel()
+                    {
+                        Name = Path.GetFileNameWithoutExtension(path),
+                        QHardHands = GetTableFromPolicy(polices.Item1, 10, 16, 3),
+                        QSoftHands = GetTableFromPolicy(polices.Item2, 10, 8, 3),
+                        QSplit = GetTableFromPolicy(polices.Item3, 10, 10, 4),
+                    };
+                }
+                else
+                    throw new Exception($"Failed to load model from file '{path}'.");
+            }
+        }
+
+        public static Tuple<char[,], char[,], char[,]> LoadPolicies(Stream stream)
+        {
+            using (var reader = new StreamReader(stream))
+            {
+                var data = reader.ReadToEnd();
+                var moves = GetValidatedPolices(data);
+                var hardHands = new char[16, 10];
+                var softHands = new char[8, 10];
+                var splits = new char[10, 10];
+                var index = 0;
+
+                for (int j = 0; j < 16; j++)
+                    for (int i = 0; i < 10; i++)
+                    {
+                        hardHands[j, i] = moves[index];
+                        index++;
+                    }
+
+                for (int j = 0; j < 8; j++)
+                    for (int i = 0; i < 10; i++)
+                    {
+                        softHands[j, i] = moves[index];
+                        index++;
+                    }
+
+                for (int j = 0; j < 10; j++)
+                    for (int i = 0; i < 10; i++)
+                    {
+                        splits[j, i] = moves[index];
+                        index++;
+                    }
+
+                return new Tuple<char[,], char[,], char[,]>
+                (
+                    Transpose(hardHands, 10, 16),
+                    Transpose(softHands, 10, 8),
+                    Transpose(splits, 10, 10)
+                );
+            }
+        }
+
+        public static void SaveModel(QLearningModel model, string report = null)
+        {
+            var QHardHands = Transpose(Learning.GetOptimalPolicy(model.QHardHands, 10, 16, new int[] { 0, 1, 2 }), 16, 10);
+            var QSoftHands = Transpose(Learning.GetOptimalPolicy(model.QSoftHands, 10, 8, new int[] { 0, 1, 2 }), 8, 10);
+            var QSplit = Transpose(Learning.GetOptimalPolicy(model.QSplit, 10, 10, new int[] { 0, 1, 2, 3 }), 10, 10);
+            var name = Guid.NewGuid().ToString();
+            char[] result = new char[340];
+            var index = 0;
+
+            for (int j = 0; j < 16; j++)
+                for (int i = 0; i < 10; i++)
+                {
+                    result[index] = QHardHands[j, i];
+                    index++;
+                }
+
+            for (int j = 0; j < 8; j++)
+                for (int i = 0; i < 10; i++)
+                {
+                    result[index] = QSoftHands[j, i];
+                    index++;
+                }
+
+            for (int j = 0; j < 10; j++)
+                for (int i = 0; i < 10; i++)
+                {
+                    result[index] = QSplit[j, i];
+                    index++;
+                }
+
+            using (var writer = new StreamWriter($"Data/Models/{name}.dat"))
+                writer.Write(string.Join(',', result));
+
+            if (!string.IsNullOrWhiteSpace(report))
+            {
+                using (var writer = new StreamWriter($"Data/Models/{name}.log"))
+                    writer.Write(report);
+            }
         }
     }
 
