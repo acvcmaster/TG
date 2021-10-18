@@ -16,11 +16,11 @@ namespace TG_V3
         {
             // CalculateHouseEdge();
             // ShowBaselineResults();
-            ShowRandomResults();
+            // ShowRandomResults();
             // ShowHardHandsBaselineResults();
             // CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
-            // ShowQLearningResults((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 1000000);
-
+            ShowQLearningResults((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 1000000);
+            // ShowLoadedModelResutls("Models/Baseline.dat");
         }
 
         private static void CalculateHouseEdge()
@@ -117,6 +117,26 @@ namespace TG_V3
             Console.WriteLine("\n\n\n");
 
             var learned = Learning.GetQLearningModel(learningRate, explorationFactor, discountFactor, maxEpisodes);
+            var estimate = EstimateWinrate(learned, 100000, 50);
+
+            var QHardHands = Learning.GetOptimalPolicy(learned.QHardHands, 10, 16, new int[] { 0, 1, 2 });
+            var QSoftHands = Learning.GetOptimalPolicy(learned.QSoftHands, 10, 8, new int[] { 0, 1, 2 });
+            var QSplit = Learning.GetOptimalPolicy(learned.QSplit, 10, 10, new int[] { 0, 1, 2, 3 });
+
+            Learning.PrintPolicy(QHardHands, 10, 16);
+            Learning.PrintPolicy(QSoftHands, 10, 8);
+            Learning.PrintPolicy(QSplit, 10, 10);
+
+            Console.WriteLine($"Learned strategy winrate: {estimate.WinPercentage}");
+            Console.WriteLine($"Learned stategy normalized rewards: {estimate.NormalizedRewards}");
+            Console.WriteLine("\n\n\n");
+        }
+
+        private static void ShowLoadedModelResutls(string path)
+        {
+            Console.WriteLine("\n\n\n");
+
+            var learned = Learning.LoadModel(path);
             var estimate = EstimateWinrate(learned, 100000, 50);
 
             var QHardHands = Learning.GetOptimalPolicy(learned.QHardHands, 10, 16, new int[] { 0, 1, 2 });
