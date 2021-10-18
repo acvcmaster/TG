@@ -21,7 +21,7 @@ public static class Diagrammer
             html.Replace("#pairs#", pairs);
 
             // Propriedades
-            html.Replace("#name#", name);
+            // (Por enquanto nenhuma)
         }
 
         return html.ToString();
