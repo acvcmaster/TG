@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 
@@ -7,10 +8,13 @@ public static class Diagrammer
 
     public static string Generate(char[] strategy, string name)
     {
-        StringBuilder html = null;
-        using (StreamReader reader = new StreamReader("Templates/Diagram.html"))
+        var html = new StringBuilder();
+        var basePath = AppDomain.CurrentDomain.BaseDirectory;
+
+        using (StreamReader reader = new StreamReader(Path.Combine(basePath, "Templates/Diagram.html")))
+        using (StreamReader styleReader = new StreamReader(Path.Combine(basePath, "Templates/Diagram.css")))
         {
-            html = new StringBuilder(reader.ReadToEnd());
+            html.Append(reader.ReadToEnd());
             var hardHands = GenerateHardHands(strategy);
             html.Replace("#hardhands#", hardHands);
 
@@ -21,7 +25,7 @@ public static class Diagrammer
             html.Replace("#pairs#", pairs);
 
             // Propriedades
-            // (Por enquanto nenhuma)
+            html.Replace("#style#", styleReader.ReadToEnd());
         }
 
         return html.ToString();

@@ -49,7 +49,7 @@ namespace TG_Visualize
                     }
                     catch (Exception error)
                     {
-                        Console.WriteLine($"The conversion problem threw an error: {error?.Message}");
+                        Console.WriteLine($"The conversion process threw an error: {error?.Message}");
                     }
                 }
                 else
