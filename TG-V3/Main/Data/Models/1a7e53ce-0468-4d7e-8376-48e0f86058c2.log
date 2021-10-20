@@ -1,0 +1,12 @@
+
+Parâmetros utilizados:
+    Taxa de aprendizado: 0.005
+    Fator de exploração: 0.2
+    Fator de desconto: 0.9
+    Número de episódios: 400000
+Resultados:
+	Pontuação do jogador: 50830.09 ± 30.0298616 (0.06 %)
+	Pontuação do dealer: 52962.84 ± 28.6137096 (0.05 %)
+	Empates: 8837.62 ± 13.1597993 (0.15 %)
+	Taxa de vitória: 42.79442 ± 0.0222011 (0.05 %)
+	Recompensa normalizada: -0.0213275 ± 0.0005453 (2.56 %)
