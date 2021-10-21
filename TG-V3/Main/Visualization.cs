@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TG_V3.Blackjack;
 using TG_V3.Extensions;
 using TG_V3.Util;
+using System.Text.RegularExpressions;
 
 namespace TG_V3
 {
@@ -19,13 +20,14 @@ namespace TG_V3
             // ShowRandomResults();
             // ShowHardHandsBaselineResults();
             // CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
-            ShowQLearningResults(
-                learningRate: (ep, maxEp) => 0.005,
-                explorationFactor: (ep, maxEp) => 1,
-                discountFactor: 0.9,
-                maxEpisodes: 100000
-            );
+            // ShowQLearningResults(
+            //     learningRate: (ep, maxEp) => 0.005,
+            //     explorationFactor: (ep, maxEp) => 1,
+            //     discountFactor: 0.9,
+            //     maxEpisodes: 100000
+            // );
             // ShowLoadedModelResutls("Models/Baseline.dat");
+            GenerateParameterDataFile();
         }
 
         private static void CalculateHouseEdge()
@@ -305,6 +307,56 @@ Parâmetros utilizados:
                 NormalizedRewards = new UncertainValue() { Value = totalRewards.Average(), Uncertainty = totalRewards.Sterr(), CoefficientOfVariation = totalPlayerScores.CoeffVar() },
                 WinPercentage = new UncertainValue() { Value = totalWinrate.Average(), Uncertainty = totalWinrate.Sterr(), CoefficientOfVariation = totalWinrate.CoeffVar() }
             };
+        }
+
+        public static void GenerateParameterDataFile()
+        {
+            var files = Directory.GetFiles("Data/Models", "*.log");
+            var regexList = new Regex[]
+            {
+                new Regex("Fator de exploração: (.*)"),
+                new Regex("Fator de desconto: (.*)"),
+                new Regex("Taxa de vitória: (.*) ± .*"),
+                new Regex("Recompensa normalizada: (.*) ± .*"),
+            };
+
+            var lines = new List<string>();
+
+            foreach (var file in files)
+                using (var reader = new StreamReader(file))
+                {
+                    var line = new List<double>();
+                    var contents = reader.ReadToEnd();
+
+                    foreach (var regex in regexList)
+                    {
+                        var value = ExtractValue(contents, regex);
+                        line.Add(value ?? double.NaN);
+                    }
+
+                    lines.Add(string.Join(", ", line));
+                }
+            
+            using (var writer = new StreamWriter("Data/parametros_qlearning.csv"))
+                foreach (var line in lines)
+                    writer.WriteLine(line);
+        }
+
+        public static double? ExtractValue(string contents, Regex regex)
+        {
+            var match = regex?.Match(contents);
+
+            if (match?.Groups?.Count == 2)
+            {
+                var group = match.Groups[1];
+                if (group.Success)
+                {
+                    var success = double.TryParse(group.Value, out double result);
+                    return success ? result : null;
+                }
+            }
+
+            return null;
         }
     }
 
