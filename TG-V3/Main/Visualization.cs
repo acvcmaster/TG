@@ -320,7 +320,7 @@ Parâmetros utilizados:
                 new Regex("Recompensa normalizada: (.*) ± .*"),
             };
 
-            var lines = new List<string>();
+            var lines = new List<List<double>>();
 
             foreach (var file in files)
                 using (var reader = new StreamReader(file))
@@ -334,12 +334,21 @@ Parâmetros utilizados:
                         line.Add(value ?? double.NaN);
                     }
 
-                    lines.Add(string.Join(", ", line));
+                    lines.Add(line);
                 }
-            
+
+            // Ordenar corretamente
+            lines.Sort((a, b) =>
+            {
+                if (a[0] != b[0])
+                    return a[0] > b[0] ? 1 : -1;
+                else
+                    return a[1] > b[1] ? 1 : -1;
+            });
+
             using (var writer = new StreamWriter("Data/parametros_qlearning.csv"))
                 foreach (var line in lines)
-                    writer.WriteLine(line);
+                    writer.WriteLine(string.Join(' ', line));
         }
 
         public static double? ExtractValue(string contents, Regex regex)
