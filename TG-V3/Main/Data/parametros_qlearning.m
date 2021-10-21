@@ -1,12 +1,11 @@
 function parametros_qlearning()
     data = load('parametros_qlearning.csv')
-
-    m = 11;
     n = 11;
 
-    # Evenly spaced axis, hacked to this dataset 
-    x = reshape(data(:,1),m,n);
-    y = reshape(data(:,2),m,n);    % might be reshape(data(:,2),n,m)
-    z = reshape(data(:,4),m,n);
-    mesh(x',y',z');
+    # Transforma a matriz 121x1 em 11x11
+    x = reshape(data(:, 1), n, n);
+    y = reshape(data(:, 2), n, n);
+    z = reshape(data(:, 4), n, n);
+    mesh(x, y, z);
+    pause();
 endfunction
