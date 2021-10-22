@@ -19,7 +19,7 @@ namespace TG_V3
             // ShowBaselineResults();
             // ShowRandomResults();
             // ShowHardHandsBaselineResults();
-            // CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
+            CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 0.7, 0.9, 20000, 400000);
             // ShowQLearningResults(
             //     learningRate: (ep, maxEp) => 0.005,
             //     explorationFactor: (ep, maxEp) => 1,
@@ -27,7 +27,7 @@ namespace TG_V3
             //     maxEpisodes: 100000
             // );
             // ShowLoadedModelResutls("Models/Baseline.dat");
-            GenerateParameterDataFile();
+            // GenerateParameterDataFile();
         }
 
         private static void CalculateHouseEdge()
@@ -69,7 +69,7 @@ namespace TG_V3
 
                     Console.WriteLine(i); // Remover
 
-                    dados.WriteLine($"{i}, {winPercentage.Value}, {winPercentage.Uncertainty}, {winPercentage.RelativeUncertainty}, {winPercentage.CoefficientOfVariation}, {normalizedRewards.Value}, {normalizedRewards.Uncertainty}, {winPercentage.RelativeUncertainty}, {normalizedRewards.CoefficientOfVariation}");
+                    dados.WriteLine($"{i} {winPercentage.Value} {winPercentage.Uncertainty} {winPercentage.RelativeUncertainty} {winPercentage.CoefficientOfVariation} {normalizedRewards.Value} {normalizedRewards.Uncertainty} {winPercentage.RelativeUncertainty} {normalizedRewards.CoefficientOfVariation}");
                     dados.Flush();
 
                     Learning.QLearning(learningRate, explorationFactor, discountFactor, step, ref qHardHands, ref qSoftHands, ref qSplit);
