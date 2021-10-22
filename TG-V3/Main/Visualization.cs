@@ -26,6 +26,20 @@ namespace TG_V3
             //     discountFactor: 0.9,
             //     maxEpisodes: 100000
             // );
+            // CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 1, 0.9, 20000, 400000);
+            // int progress = 0;
+            // for (var ef = 0.0; ef <= 1; ef += 0.1)
+            //     for (var df = 0.0; df <= 1; df += 0.1)
+            //     {
+            //         ShowQLearningResults(
+            //             learningRate: (ep, maxEp) => 0.005,
+            //             explorationFactor: (ep, maxEp) => ef,
+            //             discountFactor: df,
+            //             maxEpisodes: 400000
+            //         );
+            //         progress++;
+            //         Console.WriteLine($"Current progress is at {progress} %");
+            //     }
             // ShowLoadedModelResutls("Models/Baseline.dat");
             // GenerateParameterDataFile();
         }
