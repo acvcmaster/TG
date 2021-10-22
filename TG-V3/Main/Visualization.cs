@@ -42,6 +42,7 @@ namespace TG_V3
             //     }
             // ShowLoadedModelResutls("Models/Baseline.dat");
             // GenerateParameterDataFile();
+            // ShowResultsBestLearnedHardHands();
         }
 
         private static void CalculateHouseEdge()
@@ -404,6 +405,28 @@ Parâmetros utilizados:
             }
 
             return null;
+        }
+
+        public static void ShowResultsBestLearnedHardHands()
+        {
+            // Pega o modelo que aprendeu melhor (Q-Learning)
+            // e substitui as soft-hands e os splits pelos
+            // valores baseline. Útil para entender o quanto
+            // foi aprendido em termos de hard-hands.
+            var learned = Learning.LoadModel("Models/Learned.dat");
+            var baselineModel = Learning.GetBaselineModel();
+
+
+            var learnedModelBaselineSHS = new QLearningModel()
+            {
+                QHardHands = learned.QHardHands,
+                QSoftHands = baselineModel.QSoftHands,
+                QSplit = baselineModel.QSplit,
+            };
+
+            var estimate = EstimateWinrate(learnedModelBaselineSHS, 100000, 50);
+            Learning.SaveModel(learnedModelBaselineSHS, $"{estimate}");
+            Console.WriteLine(estimate);
         }
     }
 
