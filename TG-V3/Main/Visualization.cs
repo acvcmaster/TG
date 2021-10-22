@@ -19,7 +19,7 @@ namespace TG_V3
             // ShowBaselineResults();
             // ShowRandomResults();
             // ShowHardHandsBaselineResults();
-            CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 0.7, 0.9, 20000, 400000);
+            // CalculateLearningCurve((ep, maxEp) => 0.005, (ep, maxEp) => 0.7, 0.9, 20000, 400000);
             // ShowQLearningResults(
             //     learningRate: (ep, maxEp) => 0.005,
             //     explorationFactor: (ep, maxEp) => 1,
