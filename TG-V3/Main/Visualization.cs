@@ -320,20 +320,23 @@ Parâmetros utilizados:
                 new Regex("Recompensa normalizada: (.*) ± .*"),
             };
 
-            var lines = new List<List<double>>();
+            var lines = new List<List<string>>();
 
             foreach (var file in files)
                 using (var reader = new StreamReader(file))
                 {
-                    var line = new List<double>();
+                    var line = new List<string>();
                     var contents = reader.ReadToEnd();
 
                     foreach (var regex in regexList)
                     {
                         var value = ExtractValue(contents, regex);
-                        line.Add(value ?? double.NaN);
+                        line.Add($"{value ?? double.NaN}");
                     }
 
+                    // Descomentar se quiser saber a guid da model
+                    // (Ai não vai dar pra carregar no octave!)
+                    // line.Add($"\"{Path.GetFileNameWithoutExtension(file)}\"");
                     lines.Add(line);
                 }
 
@@ -341,9 +344,9 @@ Parâmetros utilizados:
             lines.Sort((a, b) =>
             {
                 if (a[0] != b[0])
-                    return a[0] > b[0] ? 1 : -1;
+                    return double.Parse(a[0]) > double.Parse(b[0]) ? 1 : -1;
                 else
-                    return a[1] > b[1] ? 1 : -1;
+                    return double.Parse(a[1]) > double.Parse(b[1]) ? 1 : -1;
             });
 
             using (var writer = new StreamWriter("Data/parametros_qlearning.csv"))
