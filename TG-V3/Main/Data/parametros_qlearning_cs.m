@@ -1,6 +1,6 @@
 # Cross-section
 
-function parametros_qlearning()
+function parametros_qlearning_cs()
     data = load('parametros_qlearning.csv');
     # 107aa105-7fa6-46b0-8711-f03b9fdc0981
     # ef = 0.7, df = 0.9
