@@ -128,9 +128,30 @@ namespace TG_V3
 
             var estimate = EstimateRandomWinrate(100000, 50, true);
 
+            SaveHardHandsBaselineModel();
+
             Console.WriteLine($"Baseline strategy with random soft/split winrate: {estimate.WinPercentage}");
             Console.WriteLine($"Baseline strategy with random soft/split normalized rewards: {estimate.NormalizedRewards}");
             Console.WriteLine("\n\n\n");
+        }
+
+        private static void SaveHardHandsBaselineModel()
+        {
+            // Retorna um modelo de aprendizado aonde
+            // apenas as hard-hands estão corretas
+            // (e o resto é aleatório)
+            var model = Learning.GetBaselineModel();
+            var randomModel = Learning.GetRandomModel();
+
+            var hardHandsBaselineModel = new QLearningModel()
+            {
+                QHardHands = model.QHardHands,
+                QSoftHands = randomModel.QSoftHands,
+                QSplit = randomModel.QSplit,
+            };
+
+            var estimate = EstimateWinrate(hardHandsBaselineModel, 100000, 50);
+            Learning.SaveModel(hardHandsBaselineModel, $"{estimate}");
         }
 
         private static void ShowQLearningResults(Func<int, int, double> learningRate, Func<int, int, double> explorationFactor, double discountFactor, int maxEpisodes)
