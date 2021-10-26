@@ -132,7 +132,7 @@ namespace Runner
                 {
                     StartInfo = new ProcessStartInfo
                     {
-                        FileName = "chrome",
+                        FileName = "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
                         Arguments = $"--headless --disable-gpu --screenshot=\"{image}\" --window-size=1600,900 \"{html}\"",
                         UseShellExecute = false,
                         RedirectStandardOutput = false,
