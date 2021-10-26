@@ -8,7 +8,7 @@ function curva_aprendizado()
 
     plot(x, z);
     title("Variabilidade da aptidão (50 amostras)");
-    xlabel("Número de episódios");
-    ylabel("Coeficiente de variação (CV)");
+    xlabel("Número de episódios (N)");
+    ylabel("Coeficiente de variação (CV) %");
     pause();
 endfunction
