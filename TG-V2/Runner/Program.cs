@@ -4,7 +4,6 @@ using System.Diagnostics;
 using Util;
 using System.Collections.Generic;
 using System.Linq;
-using GeneticSharp.Domain.Chromosomes;
 using SM;
 using System.Threading.Tasks;
 using System.IO;
@@ -16,16 +15,42 @@ namespace Runner
     {
         static void Main(string[] args)
         {
+            RunGAVariousParameters();
+        }
+
+        private static void RunGAVariousParameters()
+        {
+            int episodes = 150000;
+            float crossoverProbability = 0.5f;
+            int maxGenerations = 100;
+
+            RandomDecks.GenerateRandomDecks(500000);
+
+            using (var writer = new StreamWriter("Data/parametros_genetico.csv"))
+            {
+                for (var populationSize = 27; populationSize <= 300; populationSize += 25)
+                    for (var mutationProbability = 0.0f; mutationProbability < 1.1f; mutationProbability += 0.1f)
+                    {
+                        var result = RunGAWithParameters(populationSize, mutationProbability, episodes, crossoverProbability, maxGenerations);
+                        SaveChromosome(result.Item1);
+
+                        writer.WriteLine($"{populationSize} {mutationProbability} {result.Item2.Value} {result.Item2.Uncertainty}");
+                        writer.Flush();
+                    }
+            }
+        }
+
+        static Tuple<BlackjackChromosome, UncertainValue> RunGAWithParameters(int populationSize, float mutationProbability, int episodes, float crossoverProbability, int maxGenerations, int parallelism = 16)
+        {
             Console.Write("Setting up.. ");
-            var ga = BlackjackGA.SetupGA(populationSize: 120, mutationProbability: 0.2f, episodes: 150000, crossoverProbability: 0.5f, maxGenerations: 100);
-            RandomDecks.GenerateRandomDecks(150000);
+            var ga = BlackjackGA.SetupGA(populationSize, mutationProbability, episodes, crossoverProbability, maxGenerations, parallelism);
             Stopwatch timer = new Stopwatch();
             Console.WriteLine($"Setup done.");
 
-            double? bestFitness = double.NegativeInfinity;
+            var bestFitness = new UncertainValue() { Value = double.NegativeInfinity, Uncertainty = 0 };
             int bestFitnessGeneration = -1;
             var bestFit = new BlackjackChromosome();
-            var evaluator = new BlackjackFitness(150000);
+            var evaluator = new BlackjackFitness(episodes);
 
             ga.GenerationRan += (gen, ev) =>
             {
@@ -50,9 +75,9 @@ namespace Runner
 
                 Console.WriteLine($"Fitness for current generation is: {uncertainFitness}");
 
-                if (uncertainFitness.Value > bestFitness)
+                if (uncertainFitness.Value > bestFitness.Value)
                 {
-                    bestFitness = uncertainFitness.Value;
+                    bestFitness = uncertainFitness;
                     bestFitnessGeneration = algorithm.GenerationsNumber;
                     bestFit = best;
                 }
@@ -67,7 +92,8 @@ namespace Runner
 
 
             Console.WriteLine($"Run completed!");
-            SaveChromosome(bestFit);
+
+            return new Tuple<BlackjackChromosome, UncertainValue>(bestFit, bestFitness);
         }
 
         static void VerificarModeloAleatorio()
@@ -90,10 +116,10 @@ namespace Runner
             Console.WriteLine($"Random model normalized rewards: {fitness}");
         }
 
-        static void SaveChromosome(BlackjackChromosome chromosome, string name = null)
+        static void SaveChromosome(BlackjackChromosome chromosome)
         {
             var values = chromosome?.Moves;
-            name = name ?? Guid.NewGuid().ToString();
+            var name = Guid.NewGuid().ToString();
 
             using (var writer = new StreamWriter($"Data/Models/{name}.dat"))
             {
