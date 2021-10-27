@@ -6,7 +6,8 @@ namespace Util
     {
         private static Deck[] randomDecks;
         public static int Count { get; set; }
-        public static void GenerateRandomDecks(int count = Global.Games, int DeckCount = 4)
+
+        public static void GenerateRandomDecks(int count, int DeckCount = 4)
         {
             Count = count;
             randomDecks = new Deck[count];

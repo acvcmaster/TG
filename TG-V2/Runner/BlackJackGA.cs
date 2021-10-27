@@ -11,15 +11,15 @@ namespace Runner
 {
     public static class BlackjackGA
     {
-        public static GeneticAlgorithm SetupGA()
+        public static GeneticAlgorithm SetupGA(int populationSize, float mutationProbability, int episodes, float crossoverProbability, int maxGenerations, int parallelism = 16)
         {
             var chromosome = new BlackjackChromosome();
-            var population = new Population(Global.Population, Global.Population, chromosome);
-            var fitness = new BlackjackFitness(Global.Games);
+            var population = new Population(populationSize, populationSize, chromosome);
+            var fitness = new BlackjackFitness(episodes);
             var selection = new TournamentSelection();
-            var crossover = new UniformCrossover(Global.Crossover);
+            var crossover = new UniformCrossover(crossoverProbability);
             var mutation = new UniformMutation(true);
-            var termination = new GenerationNumberTermination(Global.MaxGenerations);
+            var termination = new GenerationNumberTermination(maxGenerations);
 
             var ga = new GeneticAlgorithm(
                 population,
@@ -28,9 +28,9 @@ namespace Runner
                 crossover,
                 mutation);
 
-            ga.MutationProbability = Global.Mutation;
+            ga.MutationProbability = mutationProbability;
             ga.Termination = termination;
-            ga.TaskExecutor = new ParallelTaskExecutor() { MinThreads = Global.Parallelism, MaxThreads = Global.Parallelism };
+            ga.TaskExecutor = new ParallelTaskExecutor() { MinThreads = parallelism, MaxThreads = parallelism };
             return ga;
         }
     }

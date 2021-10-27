@@ -17,17 +17,15 @@ namespace Runner
         static void Main(string[] args)
         {
             Console.Write("Setting up.. ");
-            var guid = GuidProvider.NewGuid();
-            var ga = BlackjackGA.SetupGA();
-            RandomDecks.GenerateRandomDecks();
+            var ga = BlackjackGA.SetupGA(populationSize: 120, mutationProbability: 0.2f, episodes: 150000, crossoverProbability: 0.5f, maxGenerations: 100);
+            RandomDecks.GenerateRandomDecks(150000);
             Stopwatch timer = new Stopwatch();
             Console.WriteLine($"Setup done.");
-            Console.WriteLine($"The unique identifier for this run is {guid}.");
 
             double? bestFitness = double.NegativeInfinity;
             int bestFitnessGeneration = -1;
             var bestFit = new BlackjackChromosome();
-            var evaluator = new BlackjackFitness(Global.Games);
+            var evaluator = new BlackjackFitness(150000);
 
             ga.GenerationRan += (gen, ev) =>
             {
@@ -67,8 +65,9 @@ namespace Runner
             timer.Start();
             ga.Start();
 
-            SaveChromosome(bestFit, guid);
-            Console.WriteLine($"Run completed! Results saved to Data/Models/{guid}.dat");
+
+            Console.WriteLine($"Run completed!");
+            SaveChromosome(bestFit);
         }
 
         static void VerificarModeloAleatorio()
@@ -119,6 +118,8 @@ namespace Runner
                 writer.Write(result);
                 writer.Flush();
             }
+
+            Console.WriteLine($"Results saved to Data/Models/{name}.dat");
         }
 
         static void ObterCoeffVar()
