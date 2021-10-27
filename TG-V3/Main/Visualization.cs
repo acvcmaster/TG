@@ -43,6 +43,7 @@ namespace TG_V3
             // ShowLoadedModelResutls("Models/Baseline.dat");
             // GenerateParameterDataFile();
             // ShowResultsBestLearnedHardHands();
+            // VerifyTGV2Model();
         }
 
         private static void CalculateHouseEdge()
@@ -427,6 +428,21 @@ Parâmetros utilizados:
             var estimate = EstimateWinrate(learnedModelBaselineSHS, 100000, 50);
             Learning.SaveModel(learnedModelBaselineSHS, $"{estimate}");
             Console.WriteLine(estimate);
+        }
+
+        public static void VerifyTGV2Model()
+        {
+            // Pega um modelo aleatório gerado no TG-V2
+            // e cujo a fitness é conhecida. Comparar
+            // com o ganho normalizado do TG-V3.
+            // ** Está OK **
+
+            var model = Learning.LoadModel("Models/TG_V2_Random.dat");
+
+            var estimate = EstimateWinrate(model, 150000, 50);
+            Console.WriteLine(estimate);
+
+            Console.WriteLine("Ganho normalizado esperado: -0.4742436 ± 0.0006013 (0.13%)");
         }
     }
 
