@@ -16,53 +16,59 @@ namespace Runner
     {
         static void Main(string[] args)
         {
-            // Console.Write("Setting up.. ");
-            // var guid = GuidProvider.NewGuid();
-            // var ga = BlackjackGA.SetupGA();
+            Console.Write("Setting up.. ");
+            var guid = GuidProvider.NewGuid();
+            var ga = BlackjackGA.SetupGA();
             RandomDecks.GenerateRandomDecks();
-            // Stopwatch timer = new Stopwatch();
-            // Console.WriteLine($"Setup done.");
-            // Console.WriteLine($"The unique identifier for this run is {guid}.");
+            Stopwatch timer = new Stopwatch();
+            Console.WriteLine($"Setup done.");
+            Console.WriteLine($"The unique identifier for this run is {guid}.");
 
-            // double? bestFitness = double.NegativeInfinity;
-            // int bestFitnessGeneration = -1;
-            // var bjFitness = new BlackjackFitness();
+            double? bestFitness = double.NegativeInfinity;
+            int bestFitnessGeneration = -1;
+            var bestFit = new BlackjackChromosome();
+            var evaluator = new BlackjackFitness(Global.Games);
 
-            // ga.GenerationRan += (gen, ev) =>
-            // {
-            //     timer.Stop();
-            //     var millis = timer.ElapsedMilliseconds;
-            //     var algorithm = gen as GeneticAlgorithm;
-            //     var best = algorithm.BestChromosome as BlackjackChromosome;
-            //     Console.WriteLine($"Generation {algorithm.GenerationsNumber} ended (took {millis} ms)!");
-
-
-            //     // var fitness = new List<double>();
-
-            //     // for (var i = 0; i < 50; i++)
-            //     //     fitness.Add(bjFitness.Evaluate(best));
-
-            //     // var uncertainFitness = new UncertainValue() { Value = fitness.Average(), Uncertainty = fitness.Sterr() };
-
-            //     // Console.WriteLine($"Fitness for current generation is: {uncertainFitness}");
-
-            //     // if (uncertainFitness.Value > bestFitness)
-            //     // {
-            //     //     bestFitness = uncertainFitness.Value;
-            //     //     bestFitnessGeneration = algorithm.GenerationsNumber;
-            //     // }
+            ga.GenerationRan += (gen, ev) =>
+            {
+                timer.Stop();
+                var millis = timer.ElapsedMilliseconds;
+                var algorithm = gen as GeneticAlgorithm;
+                var best = algorithm.BestChromosome as BlackjackChromosome;
+                Console.WriteLine($"Generation {algorithm.GenerationsNumber} ended (took {millis} ms)!");
 
 
+                var fitness = new List<double>();
 
+                Parallel.For(0, 50, i =>
+                {
+                    var sample = evaluator.Evaluate(best);
 
-            //     Console.WriteLine("Done.");
-            //     timer.Reset();
-            //     timer.Start();
-            // };
-            // Console.WriteLine("Algorithm started.");
-            // timer.Start();
-            // ga.Start();
-            VerificarModeloAleatorio();
+                    lock (fitness)
+                        fitness.Add(sample);
+                });
+
+                var uncertainFitness = new UncertainValue() { Value = fitness.Average(), Uncertainty = fitness.Sterr() };
+
+                Console.WriteLine($"Fitness for current generation is: {uncertainFitness}");
+
+                if (uncertainFitness.Value > bestFitness)
+                {
+                    bestFitness = uncertainFitness.Value;
+                    bestFitnessGeneration = algorithm.GenerationsNumber;
+                    bestFit = best;
+                }
+
+                Console.WriteLine("Done.");
+                timer.Reset();
+                timer.Start();
+            };
+            Console.WriteLine("Algorithm started.");
+            timer.Start();
+            ga.Start();
+
+            SaveChromosome(bestFit, guid);
+            Console.WriteLine($"Run completed! Results saved to Data/Models/{guid}.dat");
         }
 
         static void VerificarModeloAleatorio()
@@ -85,10 +91,10 @@ namespace Runner
             Console.WriteLine($"Random model normalized rewards: {fitness}");
         }
 
-        static void SaveChromosome(BlackjackChromosome chromosome)
+        static void SaveChromosome(BlackjackChromosome chromosome, string name = null)
         {
             var values = chromosome?.Moves;
-            var name = Guid.NewGuid().ToString();
+            name = name ?? Guid.NewGuid().ToString();
 
             using (var writer = new StreamWriter($"Data/Models/{name}.dat"))
             {
