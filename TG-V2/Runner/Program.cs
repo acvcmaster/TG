@@ -17,6 +17,43 @@ namespace Runner
         {
         }
 
+        static void GenerateLearningCurves()
+        {
+            // 52, 0.5f
+            // 127 0.4f
+            // 177, 0.6f
+            // 227, 0.1f
+
+            var curves = new List<UncertainValue>[4]
+            {
+                new List<UncertainValue>(),
+                new List<UncertainValue>(),
+                new List<UncertainValue>(),
+                new List<UncertainValue>(),
+            };
+
+            RandomDecks.GenerateRandomDecks(500000);
+
+            RunGAWithParameters(52, 0.5f, 150000, 0.5f, 100, (_, value) => curves[0].Add(value));
+            RunGAWithParameters(127, 0.4f, 150000, 0.5f, 100, (_, value) => curves[1].Add(value));
+            RunGAWithParameters(177, 0.6f, 150000, 0.5f, 100, (_, value) => curves[2].Add(value));
+            RunGAWithParameters(227, 0.1f, 150000, 0.5f, 100, (_, value) => curves[3].Add(value));
+
+            using (var writer = new StreamWriter("Data/curva_aprendizado.csv"))
+            {
+                for (var gen = 1; gen <= 100; gen++)
+                {
+                    writer.WriteLine("{0} {1} {2} {3} {4}",
+                        gen,
+                        curves[0][gen - 1].Value,
+                        curves[1][gen - 1].Value,
+                        curves[2][gen - 1].Value,
+                        curves[3][gen - 1].Value
+                    );
+                }
+            }
+        }
+
         static void FindParameterModelCorrespondence()
         {
             var models = Directory.GetFiles("Data/Models");
@@ -62,7 +99,7 @@ namespace Runner
             }
         }
 
-        static Tuple<BlackjackChromosome, UncertainValue> RunGAWithParameters(int populationSize, float mutationProbability, int episodes, float crossoverProbability, int maxGenerations, int parallelism = 16)
+        static Tuple<BlackjackChromosome, UncertainValue> RunGAWithParameters(int populationSize, float mutationProbability, int episodes, float crossoverProbability, int maxGenerations, Action<int, UncertainValue> onGenerationCompleted = null, int parallelism = 16)
         {
             Console.Write("Setting up.. ");
             var ga = BlackjackGA.SetupGA(populationSize, mutationProbability, episodes, crossoverProbability, maxGenerations, parallelism);
@@ -103,6 +140,10 @@ namespace Runner
                     bestFitnessGeneration = algorithm.GenerationsNumber;
                     bestFit = best;
                 }
+
+                if (onGenerationCompleted is not null)
+                    onGenerationCompleted(algorithm.GenerationsNumber, bestFitness);
+
 
                 Console.WriteLine("Done.");
                 timer.Reset();
