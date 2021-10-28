@@ -15,10 +15,32 @@ namespace Runner
     {
         static void Main(string[] args)
         {
-            RunGAVariousParameters();
         }
 
-        private static void RunGAVariousParameters()
+        static void FindParameterModelCorrespondence()
+        {
+            var models = Directory.GetFiles("Data/Models");
+            var orderedModels = models
+                .Select(model => new { name = Path.GetFileName(model), created = File.GetCreationTime(model) })
+                .OrderBy(item => item.created)
+                .ToArray();
+
+            using (var writer = new StreamWriter("Data/parametros_genetico_model.csv"))
+            {
+                var index = 0;
+
+                for (var populationSize = 27; populationSize <= 300; populationSize += 25)
+                    for (var mutationProbability = 0.0f; mutationProbability < 1.1f; mutationProbability += 0.1f)
+                    {
+                        writer.WriteLine($"{populationSize} {mutationProbability} {orderedModels[index].name}");
+                        index++;
+                    }
+
+                writer.Flush();
+            }
+        }
+
+        static void RunGAVariousParameters()
         {
             int episodes = 150000;
             float crossoverProbability = 0.5f;
